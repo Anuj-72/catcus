@@ -20,7 +20,7 @@ renders are captured at exactly 2880×1800 (no rescaling needed) and the diff pa
 is wired up: drop the four reference PNGs into `visual-checks/reference/` and rerun
 `npm run check:visual` to get percentages and `visual-checks/diff/*.png`.
 
-## 2. Geometry assertions — 50/50 passed
+## 2. Geometry assertions — 52/52 passed
 
 `node scripts/geometry-check.mjs`, tolerance ±0.5 px. Full table in the run
 output; highlights:
@@ -32,6 +32,7 @@ output; highlights:
 | Login: label→box 11, group gap 47.5, CTA left offset +1 | pass |
 | Dashboard: sidebar (24, 19, 350, 860), header (396.5, 24, 1020.5, 85), banner (399, 132.5, w 1018), card (399, 422, 650, 457), logout (1200, 804, 217, 75) | pass |
 | Computed styles: H1 52.5px / Manrope 700, CTA DM Sans 500, header title Manrope 600, account value DM Sans 500, `font-variation-settings: "opsz" 14` | pass |
+| Left card words: row uses `align-items: baseline`, `that` / `Matter ...` baseline delta 0.86px | pass |
 
 ## 3. Functional checklist — 19/19 passed
 

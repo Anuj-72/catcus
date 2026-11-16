@@ -168,15 +168,18 @@
   white-space: nowrap;
 }
 
-/* Frame 5: 1179x242 at (180, 1367), bottom-aligned, gap 51. */
+/* Frame 5: 1179x242 at (180, 1367), gap 51. The two words are very different
+   sizes (60 vs 125), so aligning their line boxes bottom-to-bottom lifts the
+   script off the baseline; baseline alignment puts them on one shared baseline. */
 .frame5 {
   position: absolute;
   left: calc(90 * var(--u));
-  top: calc(683.5 * var(--u));
+  /* Placed so the shared baseline lands where the design puts "that"
+     (Figma y 1575.66 = 787.83 CSS px from the stage top). */
+  top: calc(668.71 * var(--u));
   width: calc(589.5 * var(--u));
-  height: calc(121 * var(--u));
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   gap: calc(25.5 * var(--u));
 }
 

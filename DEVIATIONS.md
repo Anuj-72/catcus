@@ -19,6 +19,7 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 | Change | Why | Where |
 |---|---|---|
 | Auth frame inset reduced from 20 to 12 CSS px on the left, top and bottom; the left card is now 700x876 so the bottom inset matches, and the form column is inset 12 px from the right | The card read as left-heavy at 20 px, with the form floating short of the right edge. Three equal insets require the card to grow 16 px, because the stage is a fixed 900 px tall | `LeftCard.module.css`, `AuthLayout.module.css` |
+| `that` and `Matter ...` share one baseline (the word row uses `align-items: baseline`), placed so that baseline sits at the design's 787.83 CSS px | STYLE.md recorded the script's baseline 7.2 Figma px lower, which came from measuring a different glyph set; measured against the render it lifted the word well above `that` | `LeftCard.module.css` |
 
 ## Behavioural differences
 

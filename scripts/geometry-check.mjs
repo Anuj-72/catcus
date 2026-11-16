@@ -75,6 +75,45 @@ check("signup: primary button height", createBtn.height, 58.3335);
 check("signup: social box width", google.width, 245);
 check("signup: gap between social boxes", github.x - (google.x + google.width), 35);
 
+/* The two words in the left card must share one baseline (design y 787.83 CSS),
+   not just be bottom-aligned: the script's descender made that lift it. */
+const words = await page.evaluate(() => {
+  const ctx = document.createElement("canvas").getContext("2d");
+  const spans = [...document.querySelectorAll("main span")].filter((el) =>
+    ["that", "Matter ..."].includes(el.textContent.trim()),
+  );
+  return spans.map((el) => {
+    const cs = getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    const lineHeight = parseFloat(cs.lineHeight);
+    ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const metrics = ctx.measureText(el.textContent.trim());
+    const halfLeading =
+      (lineHeight - (metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent)) / 2;
+    return {
+      text: el.textContent.trim(),
+      baseline: rect.top + halfLeading + metrics.fontBoundingBoxAscent,
+      parentAlign: getComputedStyle(el.parentElement).alignItems,
+    };
+  });
+});
+const rowAlign = words[0].parentAlign;
+results.push({
+  assertion: "signup: word row uses baseline alignment",
+  expected: "baseline",
+  actual: rowAlign,
+  result: rowAlign === "baseline" ? "PASS" : "FAIL",
+});
+if (rowAlign !== "baseline") failures += 1;
+const baselineDelta = Math.abs(words[0].baseline - words[1].baseline);
+results.push({
+  assertion: "signup: that / Matter baseline delta",
+  expected: "< 2px",
+  actual: `${baselineDelta.toFixed(2)}px`,
+  result: baselineDelta < 2 ? "PASS" : "FAIL",
+});
+if (baselineDelta >= 2) failures += 1;
+
 /* ---------- Login ---------- */
 await page.goto(`${BASE}/login`);
 await settle();
