@@ -45,20 +45,14 @@
   0% {
     transform: translate3d(0, 0, 0) scale(1);
   }
-  18% {
-    transform: translate3d(1.4%, -1%, 0) scale(1.012);
-  }
-  37% {
+  25% {
     transform: translate3d(2.1%, 0.7%, 0) scale(1.004);
   }
-  56% {
+  50% {
     transform: translate3d(0.3%, 1.4%, 0) scale(1.013);
   }
-  74% {
+  75% {
     transform: translate3d(-1.4%, 0.6%, 0) scale(1.006);
-  }
-  89% {
-    transform: translate3d(-0.9%, -1.1%, 0) scale(1.01);
   }
   100% {
     transform: translate3d(0, 0, 0) scale(1);
