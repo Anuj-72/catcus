@@ -48,6 +48,9 @@ const browser = await chromium.launch();
 const context = await browser.newContext({
   viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 2,
+  // The left-card ellipses drift continuously; emulating reduced motion parks
+  // them at their design position so captures are comparable with Figma.
+  reducedMotion: "reduce",
 });
 const page = await context.newPage();
 

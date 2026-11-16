@@ -13,6 +13,113 @@
 
 .ellipse {
   position: absolute;
+  /* Composited transform only: no layout, no repaint of the blurred SVG. */
+  will-change: transform;
+}
+
+/*
+ * Slow ambient drift for the three decorative ellipses. Each one has its own
+ * duration (41s / 34s / 27s) and a negative delay, so they start out of phase
+ * and never visibly re-sync; the keyframe steps are unevenly spaced so a single
+ * ellipse does not read as a mechanical bounce. Offsets are percentages of the
+ * asset's own size, so the motion scales with --u. Amplitude stays under ~2.5%
+ * (~11px on the largest ellipse at 1440px wide).
+ */
+.drift1 {
+  animation: driftA 41s ease-in-out infinite;
+}
+
+.drift2 {
+  animation: driftB 34s ease-in-out infinite;
+  animation-delay: -7s;
+}
+
+.drift3 {
+  animation: driftC 27s ease-in-out infinite;
+  animation-delay: -13s;
+}
+
+@keyframes driftA {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  18% {
+    transform: translate3d(1.4%, -1%, 0) scale(1.012);
+  }
+  37% {
+    transform: translate3d(2.1%, 0.7%, 0) scale(1.004);
+  }
+  56% {
+    transform: translate3d(0.3%, 1.4%, 0) scale(1.013);
+  }
+  74% {
+    transform: translate3d(-1.4%, 0.6%, 0) scale(1.006);
+  }
+  89% {
+    transform: translate3d(-0.9%, -1.1%, 0) scale(1.01);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes driftB {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  22% {
+    transform: translate3d(-1.8%, 1.1%, 0) scale(1.016);
+  }
+  41% {
+    transform: translate3d(-0.6%, 2.2%, 0) scale(1.005);
+  }
+  63% {
+    transform: translate3d(1.5%, 1.3%, 0) scale(1.014);
+  }
+  81% {
+    transform: translate3d(1.9%, -0.8%, 0) scale(1.003);
+  }
+  93% {
+    transform: translate3d(0.5%, -1.6%, 0) scale(1.009);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes driftC {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  16% {
+    transform: translate3d(1.1%, 1.7%, 0) scale(1.02);
+  }
+  34% {
+    transform: translate3d(2.4%, 0.4%, 0) scale(1.008);
+  }
+  52% {
+    transform: translate3d(1.2%, -1.5%, 0) scale(1.017);
+  }
+  71% {
+    transform: translate3d(-1.2%, -1%, 0) scale(1.004);
+  }
+  88% {
+    transform: translate3d(-2.1%, 0.9%, 0) scale(1.012);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Ambient decoration only: park it when the user asks for less motion. The
+   visual checks also emulate this so screenshots and the pixel diff stay
+   deterministic. */
+@media (prefers-reduced-motion: reduce) {
+  .drift1,
+  .drift2,
+  .drift3 {
+    animation: none;
+  }
 }
 
 /* Logo + Heading: 491x109 Figma at (180, 100), gap 55, centre-aligned. */

@@ -11,7 +11,8 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 | Hover/active: `filter: brightness(1.08 / 0.94)` on the primary CTA, `brightness(0.97)` on Logout, `#F7F4EC` fill on social buttons | No hover states exist in the file; brightness keeps layout fixed | `PrimaryButton.module.css`, `LogoutButton.module.css`, `SocialButton.module.css` |
 | `aria-busy` on the submitting button (no visual change, no disabled state) | Prevents a silent double submit while the Server Action runs without altering the design | `SignupForm.tsx`, `LoginForm.tsx` |
 | `.sr-only` labels on the Create Account fields | That form is placeholder-only by design; screen readers still need names | `TextField.tsx` |
-| `prefers-reduced-motion` | Nothing animates, so there is nothing to disable; noted for completeness | — |
+| Ambient drift on the three left-card ellipses: independent 41s / 34s / 27s loops, negative delays, uneven keyframe steps, ≤2.5% translate + ≤2% scale | Motion is not in the file at all; the brief asked for a slow, premium-looking drift. CSS-only, so no JS or hydration cost | `LeftCard.module.css` |
+| `prefers-reduced-motion: reduce` parks the ellipse drift | Accessibility; also what keeps `npm run check:visual` screenshots deterministic (the check emulates it) | `LeftCard.module.css`, `scripts/visual-check.mjs` |
 
 ## Behavioural differences
 

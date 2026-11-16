@@ -36,14 +36,14 @@ export function LeftCard({
 }) {
   return (
     <div className={styles.card}>
-      {ELLIPSES[variant].map((ellipse) => (
+      {ELLIPSES[variant].map((ellipse, index) => (
         // eslint-disable-next-line @next/next/no-img-element -- SVG with filters must stay pixel-sized
         <img
           key={ellipse.file}
           src={`/assets/${ellipse.file}.svg`}
           alt=""
           aria-hidden="true"
-          className={styles.ellipse}
+          className={`${styles.ellipse} ${styles[`drift${index + 1}`]}`}
           style={{
             left: u(ellipse.left),
             top: u(ellipse.top),
