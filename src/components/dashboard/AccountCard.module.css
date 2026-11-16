@@ -1,0 +1,82 @@
+/* Account details card: 1300x914 Figma at (798, 844) -> 650x457 at (399, 422).
+   Every child is placed from its measured baseline (top = baseline - 1.03em). */
+.card {
+  position: absolute;
+  left: calc(399 * var(--u));
+  top: calc(422 * var(--u));
+  width: calc(650 * var(--u));
+  height: calc(457 * var(--u));
+  border: var(--hairline) solid #000;
+  border-radius: calc(20 * var(--u));
+  background: var(--card-tint);
+}
+
+.heading {
+  position: absolute;
+  left: calc(30 * var(--u));
+  top: calc(29.9 * var(--u));
+  margin: 0;
+  font-size: calc(35 * var(--u));
+  line-height: var(--lh-manrope);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.caption {
+  position: absolute;
+  left: calc(30 * var(--u));
+  top: calc(79.75 * var(--u));
+  margin: 0;
+  font-size: calc(22.5 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Details Divider: (858, 1112) -> (1969, 1108) = -0.207 degrees, 2 Figma px. */
+.divider {
+  position: absolute;
+  left: calc(30 * var(--u));
+  top: calc(133 * var(--u));
+  width: calc(555.5 * var(--u));
+  border-top: var(--hairline) solid #000;
+  transform: rotate(-0.207deg);
+  transform-origin: left center;
+}
+
+.label {
+  position: absolute;
+  left: calc(30 * var(--u));
+  margin: 0;
+  font-size: calc(25 * var(--u));
+  line-height: var(--lh-dm);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.nameLabel {
+  top: calc(195.03 * var(--u));
+}
+
+.emailLabel {
+  top: calc(289.5 * var(--u));
+}
+
+.value {
+  position: absolute;
+  left: calc(30 * var(--u));
+  margin: 0;
+  font-size: calc(30 * var(--u));
+  line-height: var(--lh-dm);
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.nameValue {
+  top: calc(223.33 * var(--u));
+}
+
+.emailValue {
+  top: calc(317.83 * var(--u));
+}

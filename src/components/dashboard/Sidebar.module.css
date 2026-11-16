@@ -1,0 +1,96 @@
+/* Sidebar: 700x1720 Figma at (48, 38) -> 350x860 at (24, 19). */
+.sidebar {
+  position: absolute;
+  left: calc(24 * var(--u));
+  top: calc(19 * var(--u));
+  width: calc(350 * var(--u));
+  height: calc(860 * var(--u));
+  border-radius: calc(20 * var(--u));
+  background: var(--brand);
+  overflow: hidden;
+}
+
+/* Ellipse 1: circle at (142, 724) / 410 across; the asset includes the blur bleed. */
+.ellipse {
+  position: absolute;
+  left: calc(55.35 * var(--u));
+  top: calc(346.35 * var(--u));
+  width: calc(441.3 * var(--u));
+  height: calc(441.3 * var(--u));
+}
+
+/* Logo + Heading at (70, 62), gap 55 Figma, centre-aligned. */
+.lockup {
+  position: absolute;
+  left: calc(35 * var(--u));
+  top: calc(31 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(27.5 * var(--u));
+}
+
+.mark {
+  width: calc(50 * var(--u));
+  height: calc(50 * var(--u));
+  border-radius: calc(14.7059 * var(--u));
+}
+
+.wordmark {
+  font-size: calc(40 * var(--u));
+  line-height: var(--lh-manrope);
+  font-weight: 700;
+  color: var(--on-brand);
+}
+
+/* Sidebar overline at (70, 331), DM Sans 50 bold. */
+.overline {
+  position: absolute;
+  left: calc(35 * var(--u));
+  top: calc(165.5 * var(--u));
+  margin: 0;
+  font-size: calc(25 * var(--u));
+  line-height: var(--lh-dm);
+  font-weight: 700;
+  color: var(--sidebar-text);
+  white-space: nowrap;
+}
+
+/* Overview pill: 559x100 at (70, 426), radius 30 -> 279.5x50 at (35, 213). */
+.activeNav {
+  position: absolute;
+  left: calc(35 * var(--u));
+  top: calc(213 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(7.5 * var(--u));
+  width: calc(279.5 * var(--u));
+  height: calc(50 * var(--u));
+  padding-left: calc(12.5 * var(--u));
+  border-radius: calc(15 * var(--u));
+  background: var(--sidebar-active);
+}
+
+.dot {
+  width: calc(15 * var(--u));
+  height: calc(15 * var(--u));
+  border-radius: calc(4 * var(--u));
+  background: var(--lime);
+}
+
+.navLabel {
+  font-size: calc(15 * var(--u));
+  line-height: var(--lh-dm);
+  font-weight: 500;
+  color: var(--white);
+}
+
+/* Sidebar note at (70, 1491), two lines 34 CSS apart. */
+.note {
+  position: absolute;
+  left: calc(35 * var(--u));
+  top: calc(745.5 * var(--u));
+  margin: 0;
+  font-size: calc(25 * var(--u));
+  line-height: var(--lh-manrope);
+  color: var(--sidebar-note);
+}

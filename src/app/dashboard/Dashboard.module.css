@@ -1,0 +1,9 @@
+/* Dashboard stage: same 1440x900 frame as the auth screens. */
+.stage {
+  position: relative;
+  width: calc(1440 * var(--u));
+  height: calc(900 * var(--u));
+  margin: auto;
+  background: var(--page);
+  overflow: hidden;
+}

@@ -1,0 +1,46 @@
+/* Welcome banner: 2036x532 Figma at (798, 265) -> 1018x266 at (399, 132.5).
+   Text is placed from its measured baselines so the fixed 266 height holds. */
+.banner {
+  position: absolute;
+  left: calc(399 * var(--u));
+  top: calc(132.5 * var(--u));
+  width: calc(1018 * var(--u));
+  height: calc(266 * var(--u));
+  border: var(--hairline) solid #000;
+  border-radius: calc(11 * var(--u));
+  background: var(--banner);
+}
+
+.title {
+  position: absolute;
+  left: calc(26 * var(--u));
+  top: calc(23.4 * var(--u));
+  margin: 0;
+  font-size: calc(35 * var(--u));
+  line-height: var(--lh-manrope);
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* 663 Figma wide (331.5 CSS); Figma clips it to a 50px box, we let it wrap. */
+.body {
+  position: absolute;
+  left: calc(26 * var(--u));
+  top: calc(74.5 * var(--u));
+  margin: 0;
+  font-size: calc(17.5 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--muted);
+  /* The design breaks this paragraph manually; no re-wrapping. */
+  white-space: nowrap;
+}
+
+/* Frame 8 / Main Logo: 444 Figma at (2338, 309) -> 222 at (770, 22). */
+.logo {
+  position: absolute;
+  left: calc(770 * var(--u));
+  top: calc(22 * var(--u));
+  width: calc(222 * var(--u));
+  height: calc(222 * var(--u));
+}
