@@ -9,10 +9,11 @@
   overflow: hidden;
 }
 
-/* Form panel: 1400x1720 Figma at (1440, 40) -> 700x860 at (720, 20). */
+/* Form panel: 700 wide, inset 12 px from the right so it mirrors the card, and
+   kept at its designed top so the form's own vertical position is unchanged. */
 .panel {
   position: absolute;
-  left: calc(720 * var(--u));
+  left: calc(728 * var(--u));
   top: calc(20 * var(--u));
   width: calc(700 * var(--u));
   height: calc(860 * var(--u));

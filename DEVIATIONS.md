@@ -14,6 +14,12 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 | Ambient drift on the three left-card ellipses: independent 41s / 34s / 27s loops, negative delays, uneven keyframe steps, ≤2.5% translate + ≤2% scale | Motion is not in the file at all; the brief asked for a slow, premium-looking drift. CSS-only, so no JS or hydration cost | `LeftCard.module.css` |
 | `prefers-reduced-motion: reduce` parks the ellipse drift | Accessibility; also what keeps `npm run check:visual` screenshots deterministic (the check emulates it) | `LeftCard.module.css`, `scripts/visual-check.mjs` |
 
+## Requested layout changes (deliberate departures from Figma)
+
+| Change | Why | Where |
+|---|---|---|
+| Auth frame inset reduced from 20 to 12 CSS px on the left, top and bottom; the left card is now 700x876 so the bottom inset matches, and the form column is inset 12 px from the right | The card read as left-heavy at 20 px, with the form floating short of the right edge. Three equal insets require the card to grow 16 px, because the stage is a fixed 900 px tall | `LeftCard.module.css`, `AuthLayout.module.css` |
+
 ## Behavioural differences
 
 | Change | Why | Where |

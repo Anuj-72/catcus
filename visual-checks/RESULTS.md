@@ -27,7 +27,7 @@ output; highlights:
 
 | Group | Result |
 |---|---|
-| Auth stage: left card (20, 20, 700, 860), form panel (720, 20, 700, 860) | pass |
+| Auth stage: left card (12, 12, 700, 876), form panel (728, 20, 700, 860) | pass |
 | Create: name boxes 245×58.3335, email/password 525, row gaps 36, CTA 525×58.3335, socials 245 with 35 gap | pass |
 | Login: label→box 11, group gap 47.5, CTA left offset +1 | pass |
 | Dashboard: sidebar (24, 19, 350, 860), header (396.5, 24, 1020.5, 85), banner (399, 132.5, w 1018), card (399, 422, 650, 457), logout (1200, 804, 217, 75) | pass |

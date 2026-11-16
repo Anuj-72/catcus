@@ -1,10 +1,12 @@
-/* Left Card — 1400x1720 Figma = 700x860 CSS px, at (20, 20) in the stage. */
+/* Left Card — 700 CSS px wide, inset 12 px from the left, top and bottom of the
+   900-tall stage. The height is therefore 900 - 2 * 12 = 876: the matching
+   bottom inset is what keeps the frame even on all three sides. */
 .card {
   position: absolute;
-  left: calc(20 * var(--u));
-  top: calc(20 * var(--u));
+  left: calc(12 * var(--u));
+  top: calc(12 * var(--u));
   width: calc(700 * var(--u));
-  height: calc(860 * var(--u));
+  height: calc(876 * var(--u));
   border-radius: calc(20 * var(--u));
   background: var(--brand);
   /* The ellipses and the logo bleed past the edges; Figma clips them. */

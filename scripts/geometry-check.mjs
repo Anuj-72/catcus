@@ -46,13 +46,13 @@ await page.goto(`${BASE}/signup`);
 await settle();
 
 const card = await box(page.locator("main > div").first());
-check("signup: left card x", card.x, 20);
-check("signup: left card y", card.y, 20);
+check("signup: left card x", card.x, 12);
+check("signup: left card y", card.y, 12);
 check("signup: left card width", card.width, 700);
-check("signup: left card height", card.height, 860);
+check("signup: left card height", card.height, 876);
 
 const panel = await box(page.locator("main > div").nth(1));
-check("signup: form panel x", panel.x, 720);
+check("signup: form panel x", panel.x, 728);
 check("signup: form panel y", panel.y, 20);
 check("signup: form panel width", panel.width, 700);
 check("signup: form panel height", panel.height, 860);
@@ -80,7 +80,7 @@ await page.goto(`${BASE}/login`);
 await settle();
 
 const loginCard = await box(page.locator("main > div").first());
-check("login: left card x", loginCard.x, 20);
+check("login: left card x", loginCard.x, 12);
 check("login: left card width", loginCard.width, 700);
 
 const emailLabel = page.locator('label[for="email"]');
