@@ -23,12 +23,15 @@
   white-space: nowrap;
 }
 
-/* 663 Figma wide (331.5 CSS); Figma clips it to a 50px box, we let it wrap. */
+/* 663 Figma wide (331.5 CSS); Figma clips it to a 50 Figma px (25 CSS) box,
+   showing only the first line. */
 .body {
   position: absolute;
   left: calc(26 * var(--u));
   top: calc(74.5 * var(--u));
   margin: 0;
+  height: calc(25 * var(--u));
+  overflow: hidden;
   font-size: calc(17.5 * var(--u));
   line-height: var(--lh-dm);
   color: var(--muted);

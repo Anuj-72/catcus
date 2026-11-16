@@ -97,6 +97,9 @@ a {
 .u-dm {
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   font-variation-settings: "opsz" 14;
+  /* Figma's DM Sans tracks -5%; the Google variable font at opsz 14 renders
+     ~9% wider without it. Negative tracking is relative to the font size. */
+  letter-spacing: -0.05em;
 }
 
 .u-marcellus {

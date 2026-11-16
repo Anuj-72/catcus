@@ -10,6 +10,20 @@
   overflow: hidden;
 }
 
+/* Figma applies a fine NOISE grain over the whole sidebar surface. The same
+   grain asset used on the word "that" is tiled over the content: its 12.5%
+   mean black coverage reproduces Figma's darkened fill (#203d30 -> #1c352a)
+   and the speckle visible on the wordmark, icon and copy. */
+.sidebar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url("/assets/grain.svg");
+  background-size: calc(80 * var(--u)) calc(80 * var(--u));
+  pointer-events: none;
+}
+
 /* Ellipse 1: circle at (142, 724) / 410 across; the asset includes the blur bleed. */
 .ellipse {
   position: absolute;
