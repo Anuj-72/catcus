@@ -1,0 +1,21 @@
+/* Social button: 490x116.667 Figma, same border/radius as an input box.
+   Text-only — the design has no provider icons. */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  height: calc(58.3335 * var(--u));
+  border: calc(0.5835 * var(--u)) solid var(--border);
+  border-radius: calc(5.8335 * var(--u));
+  background: var(--field);
+  color: var(--placeholder);
+  font-size: calc(21.5835 * var(--u));
+  line-height: var(--lh-dm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.button:hover {
+  background: #f7f4ec;
+}

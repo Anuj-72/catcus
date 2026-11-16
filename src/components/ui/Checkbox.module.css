@@ -1,0 +1,63 @@
+/* Row is 40 Figma px tall; box 40x40 r8 -> 20x20 r4 at CSS scale. */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: calc(17.5 * var(--u));
+  height: calc(20 * var(--u));
+  cursor: pointer;
+  width: fit-content;
+}
+
+/* Kept in the DOM for keyboard and screen-reader users, drawn as the box below. */
+.native {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+  border-radius: calc(4 * var(--u));
+  background: var(--field);
+  /* Let clicks fall through to the real checkbox underneath. */
+  pointer-events: none;
+}
+
+.tick {
+  width: calc(9.3084 * var(--u));
+  height: calc(6.9861 * var(--u));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.native:checked ~ .box {
+  background: var(--brand);
+}
+
+.native:checked ~ .box .tick {
+  opacity: 1;
+}
+
+.native:focus-visible ~ .box {
+  outline: calc(2 * var(--u)) solid var(--brand);
+  outline-offset: calc(2 * var(--u));
+}
+
+/* Text starts at x 75 Figma = 37.5 CSS: box 20 + gap 17.5. */
+.text {
+  font-size: calc(15 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--muted);
+  white-space: nowrap;
+}

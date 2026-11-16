@@ -1,0 +1,28 @@
+/* Line halves: 347.7 Figma wide, 1.16679 thick, 85.337 gap to the label. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: calc(42.67 * var(--u));
+  width: 100%;
+}
+
+.line {
+  flex: 1 1 auto;
+  height: calc(0.5835 * var(--u));
+  background: var(--muted);
+  transform: rotate(0.577deg);
+}
+
+/* The design's rule is continuous across the label, so the right half starts
+   where the left one ends: 1.75 CSS px lower. */
+.lineRight {
+  transform: rotate(0.577deg) translateY(calc(1.75 * var(--u)));
+}
+
+.label {
+  flex: none;
+  font-size: calc(14.5835 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--muted);
+  white-space: nowrap;
+}

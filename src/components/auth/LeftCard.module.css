@@ -1,0 +1,87 @@
+/* Left Card — 1400x1720 Figma = 700x860 CSS px, at (20, 20) in the stage. */
+.card {
+  position: absolute;
+  left: calc(20 * var(--u));
+  top: calc(20 * var(--u));
+  width: calc(700 * var(--u));
+  height: calc(860 * var(--u));
+  border-radius: calc(20 * var(--u));
+  background: var(--brand);
+  /* The ellipses and the logo bleed past the edges; Figma clips them. */
+  overflow: hidden;
+}
+
+.ellipse {
+  position: absolute;
+}
+
+/* Logo + Heading: 491x109 Figma at (180, 100), gap 55, centre-aligned. */
+.lockup {
+  position: absolute;
+  left: calc(90 * var(--u));
+  top: calc(50 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(27.5 * var(--u));
+}
+
+.mark {
+  width: calc(50 * var(--u));
+  height: calc(50 * var(--u));
+  border-radius: calc(14.7059 * var(--u));
+}
+
+.wordmark {
+  font-size: calc(40 * var(--u));
+  line-height: var(--lh-manrope);
+  font-weight: 700;
+  color: var(--on-brand);
+}
+
+/* Main Logo: 850 Figma at (180, 303). */
+.logo {
+  position: absolute;
+  left: calc(90 * var(--u));
+  top: calc(151.5 * var(--u));
+  width: calc(425 * var(--u));
+  height: calc(425 * var(--u));
+}
+
+/* "Building things": Marcellus 120 at (180, 1228). */
+.headline {
+  position: absolute;
+  left: calc(90 * var(--u));
+  top: calc(614 * var(--u));
+  margin: 0;
+  font-size: calc(60 * var(--u));
+  line-height: var(--lh-marcellus);
+  color: var(--on-brand);
+  white-space: nowrap;
+}
+
+/* Frame 5: 1179x242 at (180, 1367), bottom-aligned, gap 51. */
+.frame5 {
+  position: absolute;
+  left: calc(90 * var(--u));
+  top: calc(683.5 * var(--u));
+  width: calc(589.5 * var(--u));
+  height: calc(121 * var(--u));
+  display: flex;
+  align-items: flex-end;
+  gap: calc(25.5 * var(--u));
+}
+
+.that {
+  font-size: calc(60 * var(--u));
+  line-height: var(--lh-marcellus);
+  color: var(--on-brand);
+}
+
+/* "Matter ...": Pinyon Script 250 at #FFCC00 90%. The line box is taller than
+   Frame 5, so it overflows upward from the shared baseline — as in Figma. */
+.matter {
+  font-size: calc(125 * var(--u));
+  line-height: var(--lh-pinyon);
+  color: rgba(255, 204, 0, 0.9);
+  white-space: nowrap;
+}

@@ -1,0 +1,77 @@
+/* Form: 1050x1516.833 Figma at (1615, 141.917) -> 525 wide, top offset 50.9585.
+   Sections are separated by 148 Figma px = 74 CSS. */
+.form {
+  position: relative;
+  width: calc(525 * var(--u));
+  margin-top: calc(50.9585 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(74 * var(--u));
+}
+
+/* H1 box 143.43 Figma tall, 43.44 gap to the sub-line. */
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: calc(21.72 * var(--u));
+}
+
+.title {
+  margin: 0;
+  font-size: calc(52.5 * var(--u));
+  line-height: var(--lh-manrope);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: calc(23.3335 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--muted);
+}
+
+.link {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+/* Every row inside User Inputs is 72 Figma px = 36 CSS apart. */
+.inputs {
+  display: flex;
+  flex-direction: column;
+  gap: calc(36 * var(--u));
+}
+
+/* Two 490-wide boxes with justify-between (490 + 70 + 490 Figma). */
+.nameRow {
+  display: flex;
+  justify-content: space-between;
+  gap: calc(35 * var(--u));
+}
+
+.termsLink {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+/* Validation messages are undesigned; reuse the login error style (see
+   DEVIATIONS.md). */
+.error {
+  margin: 0;
+  font-size: calc(20 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--error);
+}
+
+/* CTA -> divider -> socials: 48 Figma px = 24 CSS each. */
+.ctaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: calc(24 * var(--u));
+}
+
+.socials {
+  display: flex;
+  gap: calc(35 * var(--u));
+}

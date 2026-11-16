@@ -1,0 +1,92 @@
+/* Form: 1050x1470 Figma at (1615, 165.333) -> 525 wide, top offset 62.6665.
+   Sections are separated by 109 Figma px = 54.5 CSS. */
+.form {
+  position: relative;
+  width: calc(525 * var(--u));
+  margin-top: calc(62.6665 * var(--u));
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: calc(21.7 * var(--u));
+}
+
+.title {
+  margin: 0;
+  font-size: calc(52.5 * var(--u));
+  line-height: var(--lh-manrope);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: calc(23.3335 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--muted);
+}
+
+.link {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+/* User Inputs starts 356.627 Figma below the form top; the two groups are
+   95 Figma px (47.5 CSS) apart. */
+.fields {
+  margin-top: calc(54.49 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(47.5 * var(--u));
+}
+
+/* Remember Me sits at y 879.333 Figma, 59 Figma px below the password group. */
+.remember {
+  margin-top: calc(29.6 * var(--u));
+}
+
+/* Error message: right-flush with the form and bottom-aligned with the
+   Remember Me row (baseline 907.307 Figma, DM Sans 40). */
+.error {
+  position: absolute;
+  right: 0;
+  top: calc(433.9 * var(--u));
+  margin: 0;
+  font-size: calc(20 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--error);
+  white-space: nowrap;
+}
+
+/* CTA group is 441.667 Figma px tall (221 CSS) and its children are placed at
+   the measured offsets: button 0 / divider 202 / socials 325.58. */
+.ctaGroup {
+  position: relative;
+  height: calc(221 * var(--u));
+  margin-top: calc(54.5 * var(--u));
+}
+
+/* The Sign In button is 2 Figma px (1 CSS) right of the form edge — real. */
+.ctaButton {
+  position: absolute;
+  left: calc(1 * var(--u));
+  top: 0;
+  width: calc(525 * var(--u));
+}
+
+.divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(101 * var(--u));
+}
+
+.socials {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(162.79 * var(--u));
+  display: flex;
+  gap: calc(35 * var(--u));
+}

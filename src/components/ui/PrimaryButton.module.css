@@ -1,0 +1,32 @@
+/* Main CTA: 1050x116.667 Figma, radius 14 -> 525x58.3335 CSS, radius 7.
+   Label is DM Sans Medium 500 at 46.667 -> 23.3335 CSS. */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: calc(58.3335 * var(--u));
+  border: 0;
+  border-radius: calc(7 * var(--u));
+  background: var(--brand);
+  color: var(--white);
+  font-size: calc(23.3335 * var(--u));
+  line-height: var(--lh-dm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Hover/active are not in Figma; a brightness shift keeps the layout fixed. */
+.button:hover {
+  filter: brightness(1.08);
+}
+
+.button:active {
+  filter: brightness(0.94);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
+}

@@ -1,0 +1,37 @@
+/* Input box: 1050x116.667 Figma = 525x58.3335 CSS, radius 11.667 -> 5.8335. */
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Login's label sits 22 Figma px (11 CSS) above the box. */
+.label {
+  margin-bottom: calc(11 * var(--u));
+  font-size: calc(17.5 * var(--u));
+  line-height: var(--lh-dm);
+  color: var(--brand);
+}
+
+.input {
+  width: 100%;
+  height: calc(58.3335 * var(--u));
+  padding: 0 calc(14.415 * var(--u));
+  border: calc(0.5835 * var(--u)) solid var(--border);
+  border-radius: calc(5.8335 * var(--u));
+  background: var(--field);
+  color: var(--ink);
+  font-size: calc(21.5835 * var(--u));
+  line-height: var(--lh-dm);
+}
+
+.input::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+/* Error state: red border + the 8 Figma px (4 CSS) red glow. */
+.invalid {
+  border-color: var(--error);
+  box-shadow: 0 0 calc(4 * var(--u)) 0 var(--error);
+}

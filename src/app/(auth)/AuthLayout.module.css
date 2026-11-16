@@ -1,0 +1,22 @@
+/* The 1440x900 stage. Width follows --u, so the whole design scales with the
+   viewport width and stays pixel-exact at 1440. */
+.stage {
+  position: relative;
+  width: calc(1440 * var(--u));
+  height: calc(900 * var(--u));
+  margin: auto;
+  background: var(--page);
+  overflow: hidden;
+}
+
+/* Form panel: 1400x1720 Figma at (1440, 40) -> 700x860 at (720, 20). */
+.panel {
+  position: absolute;
+  left: calc(720 * var(--u));
+  top: calc(20 * var(--u));
+  width: calc(700 * var(--u));
+  height: calc(860 * var(--u));
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
