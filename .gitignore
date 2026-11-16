@@ -43,9 +43,6 @@ next-env.d.ts
 # Keep the example env file in version control
 !.env.example
 
-# local tooling marker folder
-/.freebuff/
-
 # generated check artefacts (keep the results table and any references)
 /visual-checks/mine/
 /visual-checks/diff/

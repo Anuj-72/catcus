@@ -49,12 +49,30 @@ output; highlights:
 | Checkbox toggles; Enter in a field submits | pass |
 | Empty signup shows a validation message instead of crashing | pass |
 
-## 4. Build
+## 4. Responsive / overflow — 24/24 passed
+
+`node scripts/responsive-check.mjs`, four views × six viewports. The stage is
+sized by `--u: max(0.35px, min(100vw / 1440, 100vh / 900, 2px))`, so the frame
+fits both axes.
+
+| Viewport | `--u` | Stage | Scrollbars |
+|---|---|---|---|
+| 1920×1080 | 1.2px | 1728×1080, centred | none |
+| 1600×900 | 1px | 1440×900, centred | none |
+| 1440×900 | 1px | 1440×900 (pixel-exact) | none |
+| 1366×768 | 0.853px | 1228.8×768, letterboxed | none |
+| 1280×800 | 0.889px | 1280×800 | none |
+| 1024×768 | 0.711px | 1024×640, letterboxed | none |
+
+Every case reports `scrollWidth/scrollHeight == clientWidth/clientHeight`, no
+scrollbar, and the stage fully inside the viewport.
+
+## 5. Build
 
 - `npm run build` — pass (TypeScript + route compilation).
 - `npm run lint` — pass, no warnings.
 
-## 5. Not verified
+## 6. Not verified
 
 - Pixel diff against Figma (see §1).
 - Real-device / cross-browser rendering; only Chromium was used.
