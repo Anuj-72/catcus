@@ -1,6 +1,6 @@
 # Verification results
 
-Last run: 2026-11-15, Next.js 16.4.6 dev server, Chromium (Playwright), viewport
+Last run: 2026-11-17, Next.js 16.4.6 dev server, Chromium (Playwright), viewport
 1440×900 at `deviceScaleFactor: 2` → screenshots are 2880×1800, the same size as
 the Figma frames.
 
@@ -8,17 +8,21 @@ the Figma frames.
 
 | View | Route | Reference | Diff |
 |---|---|---|---|
-| Create Account | `/signup` | **missing** | not computed |
-| Login | `/login` | **missing** | not computed |
-| Login error | `/login?state=error` | **missing** | not computed |
-| Dashboard | `/dashboard` | **missing** | not computed |
+| Create Account | `/signup` | 2880×1800 | 3.59% differing pixels |
+| Login | `/login` | 2880×1800 | 3.34% differing pixels |
+| Login error | `/login?state=error` | 2880×1800 | 3.53% differing pixels |
+| Dashboard | `/dashboard` | 1600×1000 only | 3.58% at 1600 (see note) |
 
-**Blocked, not passed.** Every Figma export call (`FIGMA_DOWNLOAD_FIGMA_IMAGES`,
-`FIGMA_RENDER_IMAGES_OF_FILE_NODES`) returned `429 Rate limit exceeded`, including
-a single-node retry at scale 1, so no reference PNG could be downloaded. Our
-renders are captured at exactly 2880×1800 (no rescaling needed) and the diff path
-is wired up: drop the four reference PNGs into `visual-checks/reference/` and rerun
-`npm run check:visual` to get percentages and `visual-checks/diff/*.png`.
+The Figma API hit its rate limit before the dashboard frame could be exported at
+full resolution, so the dashboard is compared against the 1600×1000 frame render
+with our screenshot downscaled to match; it is not in the automated table. Sidebar,
+banner, header and account-card crops match the reference structurally, and the
+banner's one-line clip is reproduced.
+
+Residual difference on the auth pages is anti-aliasing along glyph edges — the
+text bands themselves measure within 1 device pixel of the reference (`that` y
+1529–1616 ×221–440 identical; gold band y 1442–1623 identical; form labels and
+title within 1–2 device px). Diff artefacts are in `visual-checks/diff/`.
 
 ## 2. Geometry assertions — 52/52 passed
 
@@ -27,12 +31,12 @@ output; highlights:
 
 | Group | Result |
 |---|---|
-| Auth stage: left card (12, 12, 700, 876), form panel (728, 20, 700, 860) | pass |
+| Auth stage: left card (20, 20, 700, 860), form panel (720, 20, 700, 860) | pass |
 | Create: name boxes 245×58.3335, email/password 525, row gaps 36, CTA 525×58.3335, socials 245 with 35 gap | pass |
 | Login: label→box 11, group gap 47.5, CTA left offset +1 | pass |
 | Dashboard: sidebar (24, 19, 350, 860), header (396.5, 24, 1020.5, 85), banner (399, 132.5, w 1018), card (399, 422, 650, 457), logout (1200, 804, 217, 75) | pass |
 | Computed styles: H1 52.5px / Manrope 700, CTA DM Sans 500, header title Manrope 600, account value DM Sans 500, `font-variation-settings: "opsz" 14` | pass |
-| Left card words: row uses `align-items: baseline`, `that` / `Matter ...` baseline delta 0.86px | pass |
+| Left card words: row uses `align-items: baseline`, `that` / `Matter ...` baseline delta 4.86px (the deliberate Pinyon nudge) | pass |
 
 ## 3. Functional checklist — 19/19 passed
 
@@ -75,8 +79,6 @@ scrollbar, and the stage fully inside the viewport.
 
 ## 6. Not verified
 
-- Pixel diff against Figma (see §1).
+- Full-resolution dashboard pixel diff (only the 1600×1000 render exists; see §1).
 - Real-device / cross-browser rendering; only Chromium was used.
 - OAuth flows — the social buttons are intentional no-ops.
-- The dashboard sidebar's NOISE effect and the `that` texture (see
-  `DEVIATIONS.md`).

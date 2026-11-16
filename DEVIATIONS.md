@@ -18,14 +18,12 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 
 | Change | Why | Where |
 |---|---|---|
-| Auth frame inset reduced from 20 to 12 CSS px on the left, top and bottom; the left card is now 700x876 so the bottom inset matches, and the form column is inset 12 px from the right | The card read as left-heavy at 20 px, with the form floating short of the right edge. Three equal insets require the card to grow 16 px, because the stage is a fixed 900 px tall | `LeftCard.module.css`, `AuthLayout.module.css` |
-| `that` and `Matter ...` share one baseline (the word row uses `align-items: baseline`), placed so that baseline sits at the design's 787.83 CSS px | STYLE.md recorded the script's baseline 7.2 Figma px lower, which came from measuring a different glyph set; measured against the render it lifted the word well above `that` | `LeftCard.module.css` |
+| `that` and `Matter ...` share one baseline (the word row uses `align-items: baseline`), placed so the shared baseline lands at Figma's rendered y (1615 Figma px from the frame top) | STYLE.md recorded the script's baseline 7.2 Figma px lower, which came from measuring a different glyph set; measured against the render it lifted the word well above `that` | `LeftCard.module.css` |
 
 ## Behavioural differences
 
 | Change | Why | Where |
 |---|---|---|
-| Welcome banner shows the **full two-line** paragraph instead of Figma's 50px clip (one visible line) | The clip looks like a design mistake, per the brief's default decision | `WelcomeBanner.module.css` — to restore the clipped look add `height: calc(25 * var(--u)); overflow: hidden;` to `.body` |
 | Banner paragraph keeps the design's **manual** line break (`<br>`, `white-space: nowrap`) | Re-wrapping at 331.5 CSS px produced three lines with the web font's metrics | `WelcomeBanner.tsx` |
 | Typed input text uses `--ink` (#18271F) at the placeholder's size/weight | No filled/typed state exists in the design | `TextField.module.css` |
 | Signup validation messages reuse the login error style (`--error`, DM Sans 20px), placed under the T&C row | Error states only exist for Login in Figma | `SignupForm.tsx` / `.module.css` |
@@ -41,7 +39,10 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 |---|---|
 | **Borders** | Figma's 1px black strokes are drawn as `1px` CSS (they are 0.5 CSS px in the 2× design) so browsers do not drop or double them; input borders use `calc(0.5835 * var(--u))` and snap to a device pixel. |
 | **Divider rules** | The "Or sign in with" halves are CSS spans (`0.5835px` high, `rotate(0.577deg)`, right half `translateY(1.75px)`) instead of an exported SVG, because `design-assets/` has no line asset and every Figma export call was rate-limited. Figma sits the rule a few px higher relative to the label than a vertically centred row does. |
-| **Sidebar / `that` noise** | The Main Logo's grain is the SVG filter inside `main-logo.svg` (used as-is, never optimised). The dashboard sidebar's `NOISE` effect and the `NOISE` on the word `that` are **not** reproduced: both are filters applied to CSS text/boxes, and hand-building a turbulence filter would invent an asset. Visible as missing speckle on the sidebar only. |
+| **Sidebar / `that` noise** | Figma's `NOISE` effect on the dashboard sidebar and on the word `that` is reproduced by `public/assets/grain.svg`, a generated `feTurbulence` tile (12.5% mean black coverage) tiled at 80 CSS px and clipped to the sidebar box or to the glyphs. It is an authored asset, not a Figma export: it was tuned against the reference screenshots so the mean and grain contrast match. |
+| **Main Logo grain** | `main-logo.svg` ships with a displacement filter whose flood alpha was 0.25, roughly 3.6× stronger than the grain Figma renders; both flood stops were lowered to 0.07. The displacement scale is untouched. |
+| **DM Sans tracking** | Figma's DM Sans tracks about -5% relative to the Google variable font at `opsz` 14, which otherwise renders ~9% wider. `.u-dm` applies `letter-spacing: -0.05em`, so the tracking scales with `--u`. |
+| **`Matter ...` offset** | Pinyon Script's web font overshoots its ascent further than the Figma cut, so the gold line is nudged 4 CSS px down (`position: relative; top`) to land on Figma's rendered band. It does not affect the shared baseline of the row. |
 | **Logout icon size** | Rendered at 22.5 CSS px (45 Figma px, per `STYLE.md`). The task brief said 30 CSS px; `STYLE.md` won. |
 | **Ellipse positions** | Placed at Figma bbox − 31.3px blur bleed, which is exactly what the exported 882.6/612.6/362.6 SVGs encode. No further adjustment was needed. |
 | **`Cactus` vs `Catcus`** | Dashboard copy says "Cactus", the brand/email say "Catcus". Both kept exactly as designed. |

@@ -112,7 +112,7 @@ Start the dev server first (`npm run dev`, default port 3000). The scripts
 default to `BASE_URL=http://localhost:3100`; override it if your port differs.
 
 ```bash
-BASE_URL=http://localhost:3000 npm run check:geometry     # 50 box/style assertions, +-0.5 px
+BASE_URL=http://localhost:3000 npm run check:geometry     # 52 box/style assertions, +-0.5 px
 BASE_URL=http://localhost:3000 npm run check:functional   # 19 auth/route/cookie checks
 BASE_URL=http://localhost:3000 npm run check:visual       # 2880x1800 screenshots + pixelmatch
 BASE_URL=http://localhost:3000 npm run check:responsive   # no scrollbars at 6 viewport sizes
@@ -121,22 +121,11 @@ BASE_URL=http://localhost:3000 npm run check:responsive   # no scrollbars at 6 v
 `check:visual` writes `visual-checks/mine/<view>.png` and, when a reference
 exists at `visual-checks/reference/<view>.png`, a diff at
 `visual-checks/diff/<view>.png` plus the percentage of differing pixels. The
-Figma references could not be downloaded during the build (the Figma API
-returned `429 Rate limit exceeded` for every export), so the table currently
-reports "no Figma reference".
+signup, login and login-error frames are in place at 2880×1800. The dashboard
+frame could only be obtained at 1600×1000 before the Figma API rate limit, so add
+`visual-checks/reference/dashboard.png` at 2880×1800 when it becomes available.
 
-To complete the pixel diff later:
-
-```bash
-# save the four frames at scale 1 (they are 2880x1800 natively) as:
-#   visual-checks/reference/signup.png
-#   visual-checks/reference/login.png
-#   visual-checks/reference/login-error.png
-#   visual-checks/reference/dashboard.png
-BASE_URL=http://localhost:3000 npm run check:visual
-```
-
-Expected acceptable differences once references exist: grain/noise speckle, font
-anti-aliasing and sub-pixel border snapping.
+Expected acceptable differences: font anti-aliasing, grain speckle (phase, not
+amplitude) and sub-pixel border snapping.
 
 Results of the last run: `visual-checks/RESULTS.md`.

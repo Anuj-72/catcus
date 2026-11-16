@@ -27,4 +27,6 @@ npm run check:visual       # 2880x1800 screenshots + pixelmatch diff
 
 No backend, database or OAuth: accounts live in server memory and the Google /
 GitHub buttons are no-ops. Do not optimise the SVGs in `design-assets/` or
-`public/assets/` — their grain and blur filters break.
+`public/assets/` — their grain and blur filters break. `public/assets/grain.svg`
+is generated, not exported: its alpha curve is tuned to Figma's NOISE effect, so
+changing the filter values changes the diff.
