@@ -1,0 +1,121 @@
+/*
+ * Design tokens and the single scaling unit, mirrored from STYLE.md.
+ *
+ * The Figma frames are 2880x1800 = 1440x900 CSS px at 2x, so every Figma
+ * value in STYLE.md is halved here and then multiplied by --u.
+ */
+:root {
+  /* One CSS px of the 1440x900 design frame.
+     min() keeps the 16:10 frame inside the window in BOTH axes - a width-only
+     unit overflows once the window is shorter than 900px, which is what used to
+     produce a vertical scrollbar and then (because 100vw includes that
+     scrollbar) a horizontal one too. At exactly 1440x900 this is 1px, so that
+     viewport stays pixel-exact. */
+  --u: max(0.35px, min(calc(100vw / 1440), calc(100vh / 900), 2px));
+
+  /* Figma's 1px black strokes; never thinner than one device pixel. */
+  --hairline: max(1px, calc(0.5 * var(--u)));
+
+  /* Surfaces */
+  --page: #e9e3d6;
+  --brand: #203d30;
+  --field: #fffefa;
+  --banner: #dce6d1;
+  --header-bg: rgba(230, 250, 251, 0.8);
+  --card-tint: rgba(255, 242, 204, 0.77);
+  --sidebar-active: #315540;
+
+  /* Ink */
+  --ink: #18271f;
+  --muted: #6e786f;
+  --placeholder: #989d94;
+  --on-brand: #fef1c7;
+  --sidebar-text: #afc4b1;
+  --sidebar-note: #d4e2d6;
+  --header-user: #393737;
+  --logout-ink: #313131;
+
+  /* Accents */
+  --cream: #fef1c7;
+  --gold: #ffcc00;
+  --lime: #a5c957;
+  --error: #ab0000;
+
+  /* Lines */
+  --border: #dcd8cc;
+  --white: #ffffff;
+
+  /* Line heights measured from Figma's auto line heights (STYLE.md §2.2). */
+  --lh-manrope: 1.366;
+  --lh-dm: 1.302;
+  --lh-marcellus: 1.2539;
+  --lh-pinyon: 1.2476;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--page);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+/* Focus is undesigned in Figma; this is the minimal accessible addition
+   recorded in DEVIATIONS.md. */
+:focus-visible {
+  outline: calc(2 * var(--u)) solid var(--brand);
+  outline-offset: calc(2 * var(--u));
+}
+
+/* Type roles. DM Sans carries an optical-size axis in the design (opsz 14). */
+.u-manrope {
+  font-family: var(--font-manrope), system-ui, sans-serif;
+}
+
+.u-dm {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-variation-settings: "opsz" 14;
+}
+
+.u-marcellus {
+  font-family: var(--font-marcellus), serif;
+}
+
+.u-pinyon {
+  font-family: var(--font-pinyon), cursive;
+}
+
+/* Accessible labels that must not change the design. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
