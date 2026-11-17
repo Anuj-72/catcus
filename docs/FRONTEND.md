@@ -78,14 +78,22 @@ The frames are 2880×1800 = 1440×900 CSS px at 2×, so **CSS px = Figma px ÷ 2
 
 Every dimension is written as `calc(<cssPx> * var(--u))`, so the whole design
 scales proportionally with the window. Because the unit is the **smaller** of the
-two fits, the 16:10 frame always fits both axes:
+two fits, the 16:10 content always fits both axes.
 
-| Window | `--u` | Frame |
+The auth stage is not a centred 1440-wide box: it spans the full window width and
+is 900 × `--u` tall. Figma splits the frame down the middle, so the card owns
+`calc(50% - 20 * var(--u))` and the form panel `calc(50%) … right: 20 * var(--u)`;
+the 20 px frame inset is therefore identical on the left, right, top and bottom
+on any window wider than 16:10, and surplus width becomes space between the two
+halves. Only a narrower-than-16:10 window letterboxes vertically. The dashboard
+stage is still the centred 1440 × `--u` frame.
+
+| Window | `--u` | Auth stage |
 |---|---|---|
 | 1440×900 | 1px | 1440×900, pixel-exact |
-| 1366×768 | 0.853px | 1228×768, letterboxed horizontally |
-| 1920×1080 | 1.2px | 1728×1080 |
-| 3840×2160 | 2px (cap) | 2880×1800 |
+| 1366×768 | 0.853px | 1366×768 |
+| 1920×1080 | 1.2px | 1920×1080 |
+| 1024×768 | 0.711px | 1024×640, centred vertically |
 
 A width-only unit (`100vw / 1440`) overflowed vertically as soon as the window
 was shorter than 900px, and that vertical scrollbar then made `100vw` wider than

@@ -56,18 +56,20 @@ output; highlights:
 
 ## 4. Responsive / overflow — 24/24 passed
 
-`node scripts/responsive-check.mjs`, four views × six viewports. The stage is
-sized by `--u: max(0.35px, min(100vw / 1440, 100vh / 900, 2px))`, so the frame
-fits both axes.
+`node scripts/responsive-check.mjs`, four views × six viewports. Scale is
+`--u: max(0.35px, min(100vw / 1440, 100vh / 900, 2px))`. The auth stage spans the
+window width (100vw) and is 900 × `--u` tall, so the card keeps the same frame
+inset on the left, right and top at any aspect; only a window narrower than 16:10
+letterboxes vertically. The dashboard stage remains 1440 × `--u` wide, centred.
 
-| Viewport | `--u` | Stage | Scrollbars |
+| Viewport | `--u` | Auth stage | Scrollbars |
 |---|---|---|---|
-| 1920×1080 | 1.2px | 1728×1080, centred | none |
-| 1600×900 | 1px | 1440×900, centred | none |
+| 1920×1080 | 1.2px | 1920×1080 | none |
+| 1600×900 | 1px | 1600×900 | none |
 | 1440×900 | 1px | 1440×900 (pixel-exact) | none |
-| 1366×768 | 0.853px | 1228.8×768, letterboxed | none |
+| 1366×768 | 0.853px | 1366×768 | none |
 | 1280×800 | 0.889px | 1280×800 | none |
-| 1024×768 | 0.711px | 1024×640, letterboxed | none |
+| 1024×768 | 0.711px | 1024×640, centred vertically | none |
 
 Every case reports `scrollWidth/scrollHeight == clientWidth/clientHeight`, no
 scrollbar, and the stage fully inside the viewport.

@@ -1,10 +1,12 @@
-/* Left Card — 700 CSS px wide, inset 20 px from the left, top and bottom of the
-   900-tall stage, exactly as in Figma (height 900 - 2 * 20 = 860). */
+/* Left Card — Figma splits the frame in two: the card owns the left half and the
+   form owns the right half, each inset 20 CSS px on its outer edge. At 1440 that
+   is 700 wide (720 - 20); wider windows grow the card with the half. Height is
+   the stage height less the same 20 px inset top and bottom. */
 .card {
   position: absolute;
   left: calc(20 * var(--u));
   top: calc(20 * var(--u));
-  width: calc(700 * var(--u));
+  width: calc(50% - 20 * var(--u));
   height: calc(860 * var(--u));
   border-radius: calc(20 * var(--u));
   background: var(--brand);
