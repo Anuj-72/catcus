@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:15.12-alpine
+    env_file:
+      - ./backend/.env
+    ports:
+      # Loopback only: the database is a private dependency of FastAPI.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - catcus_pgdata:/var/lib/postgresql/data
+      - ./backend/docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  catcus_pgdata:
