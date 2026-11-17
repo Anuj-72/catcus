@@ -14,6 +14,7 @@ Then open `/signup`, `/login` or `/dashboard`.
 **Seeded login:** `andrewmartin@catcus.com` / `Password@12`
 
 - App code and conventions: [`docs/FRONTEND.md`](docs/FRONTEND.md)
+- Backend and PostgreSQL setup: [`docs/BACKEND.md`](docs/BACKEND.md)
 - Where the build differs from Figma: [`DEVIATIONS.md`](DEVIATIONS.md)
 - Verification results: [`visual-checks/RESULTS.md`](visual-checks/RESULTS.md)
 
@@ -25,8 +26,9 @@ npm run check:functional   # auth, routing and cookie behaviour
 npm run check:visual       # 2880x1800 screenshots + pixelmatch diff
 ```
 
-No backend, database or OAuth: accounts live in server memory and the Google /
-GitHub buttons are no-ops. Do not optimise the SVGs in `design-assets/` or
-`public/assets/` — their grain and blur filters break. `public/assets/grain.svg`
-is generated, not exported: its alpha curve is tuned to Figma's NOISE effect, so
-changing the filter values changes the diff.
+The UI still uses the in-memory mock auth store; the PostgreSQL/FastAPI backend
+exists but is not wired to the forms yet. The Google / GitHub buttons are no-ops.
+Do not optimise the SVGs in `design-assets/` or `public/assets/` — their grain
+and blur filters break. `public/assets/grain.svg` is generated, not exported: its
+alpha curve is tuned to Figma's NOISE effect, so changing the filter values
+changes the diff.
