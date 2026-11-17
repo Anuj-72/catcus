@@ -42,6 +42,15 @@ next-env.d.ts
 
 # Keep the example env file in version control
 !.env.example
+!backend/.env.example
+
+# python
+backend/.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
 
 # generated check artefacts (keep the results table and any references)
 /visual-checks/mine/
