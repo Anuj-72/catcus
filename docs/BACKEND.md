@@ -5,24 +5,49 @@ private backend; the Next.js UI still uses the mock auth store until Phase 2 wir
 
 ## Run it
 
+First time only:
+
 ```bash
+npm install
 cp backend/.env.example backend/.env        # change POSTGRES_PASSWORD if you want
-docker compose up -d --wait
-docker compose ps                           # postgres is healthy
+npm run backend:setup                       # creates backend/.venv and installs Python deps
+```
 
+Start the database, migrate, seed and run both servers:
+
+```bash
+npm run up
+```
+
+`npm run up` runs `docker compose up -d --wait`, `alembic upgrade head`, the idempotent demo seed,
+then `next dev` on `127.0.0.1:3000` and `uvicorn` on `127.0.0.1:8000` under `concurrently`.
+Ctrl+C stops both servers; PostgreSQL keeps running.
+
+Useful scripts:
+
+| Script | Effect |
+|---|---|
+| `npm run up` | Database + migrations + seed + frontend + backend |
+| `npm run db:up` | Start PostgreSQL only |
+| `npm run db:down` | Stop PostgreSQL, keep the data volume |
+| `npm run db:reset` | Delete the volume and start an empty PostgreSQL |
+| `npm run backend:setup` | Create the venv and install Python dependencies |
+| `npm run backend:migrate` | Run Alembic and the demo seed |
+| `npm run backend:dev` | FastAPI only, with reload |
+
+Manual backend run:
+
+```bash
 cd backend
-python3 -m venv .venv
 . .venv/bin/activate
-pip install -e ".[dev]"
-
 alembic upgrade head
 python -m scripts.seed
-
-uvicorn app.main:app --host 127.0.0.1 --port 8000
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 The API listens on loopback only. The browser never calls it: Phase 2 adds a server-only Next.js
-client and keeps the HttpOnly `catcus_session` cookie on the Next side.
+client and keeps the HttpOnly `catcus_session` cookie on the Next side. Until then the UI still uses
+`AUTH_MODE=mock`; leaving it in `.env.local` is correct.
 
 ## API
 

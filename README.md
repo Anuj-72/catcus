@@ -6,10 +6,12 @@ Login / create-account / dashboard flow built from the Figma design captured in
 ```bash
 npm install
 cp .env.example .env.local     # set a 32+ character AUTH_SECRET
-npm run dev
+npm run up                     # PostgreSQL + FastAPI + Next.js
 ```
 
-Then open `/signup`, `/login` or `/dashboard`.
+Then open `/signup`, `/login` or `/dashboard` at `http://127.0.0.1:3000`.
+`npm run dev` still starts the frontend alone. First-time backend setup is in
+[`docs/BACKEND.md`](docs/BACKEND.md).
 
 **Seeded login:** `andrewmartin@catcus.com` / `Password@12`
 
