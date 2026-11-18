@@ -19,6 +19,18 @@ def register(
     )
 
 
+def login(
+    client: TestClient,
+    *,
+    email: str = "test@example.com",
+    password: str = "Password@12",
+):
+    return client.post(
+        "/auth/login",
+        json={"email": email, "password": password},
+    )
+
+
 def test_register_persists_lowercased_user_with_argon2_hash(client: TestClient) -> None:
     response = register(client)
 
@@ -63,3 +75,40 @@ def test_health_reports_ok(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_login_returns_the_registered_user(client: TestClient) -> None:
+    assert register(client).status_code == 201
+
+    response = login(client, email="TEST@example.com")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["email"] == "test@example.com"
+    assert body["full_name"] == "Test User"
+    assert "password_hash" not in body
+
+
+def test_login_rejects_wrong_password_and_unknown_email(client: TestClient) -> None:
+    assert register(client).status_code == 201
+
+    wrong_password = login(client, password="WrongPassword@12")
+    unknown_email = login(client, email="nobody@example.com")
+
+    for response in (wrong_password, unknown_email):
+        assert response.status_code == 401
+        assert response.json() == {"detail": "invalid_credentials"}
+
+
+def test_login_rejects_inactive_user(client: TestClient) -> None:
+    assert register(client).status_code == 201
+    with SessionLocal() as db:
+        user = db.scalar(select(User).where(User.email == "test@example.com"))
+        assert user is not None
+        user.is_active = False
+        db.commit()
+
+    response = login(client)
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "invalid_credentials"}
