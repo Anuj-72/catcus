@@ -18,6 +18,11 @@ class RegisterRequest(BaseModel):
         return value
 
 
+class LoginRequest(BaseModel):
+    email: EmailStr = Field(max_length=320)
+    password: str = Field(min_length=1, max_length=128)
+
+
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

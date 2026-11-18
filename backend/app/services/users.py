@@ -2,11 +2,15 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.models.user import User
 
 
 class EmailTaken(Exception):
+    pass
+
+
+class InvalidCredentials(Exception):
     pass
 
 
@@ -36,4 +40,13 @@ def register_user(db: Session, *, email: str, full_name: str, password: str) -> 
         db.rollback()
         raise EmailTaken from exc
     db.refresh(user)
+    return user
+
+
+def authenticate_user(db: Session, *, email: str, password: str) -> User:
+    user = get_user_by_email(db, email)
+    if user is None or not user.is_active:
+        raise InvalidCredentials
+    if not verify_password(password, user.password_hash):
+        raise InvalidCredentials
     return user
