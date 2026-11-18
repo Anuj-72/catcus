@@ -1,5 +1,6 @@
 /**
- * Functional checklist for the mock auth flow.
+ * Functional checklist for the backend-backed auth flow.
+ * Requires PostgreSQL and FastAPI: start everything with `npm run up`.
  * Usage: node scripts/functional-check.mjs
  */
 import { chromium } from "@playwright/test";
@@ -20,7 +21,7 @@ const signOut = async () => {
 };
 
 /* 1. Sign up with new data -> dashboard with that identity. A unique email
-   keeps repeated runs working, since the mock store lives in server memory. */
+   keeps repeated runs working now that accounts persist in PostgreSQL. */
 const newEmail = `rosa.vega.${Date.now()}@catcus.com`;
 await page.goto(`${BASE}/signup`);
 await settle();
@@ -47,7 +48,35 @@ await page.goto(`${BASE}/dashboard`);
 await page.waitForURL("**/login");
 record("signed-out /dashboard redirects to /login", page.url().endsWith("/login"));
 
-/* 3. Seeded login works; wrong password shows the error state. */
+/* 3. The account created above is in PostgreSQL: duplicate signup is rejected
+   and a fresh login works after logout. */
+await page.goto(`${BASE}/signup`);
+await settle();
+await page.fill("#firstName", "Rosa");
+await page.fill("#lastName", "Vega");
+await page.fill("#email", newEmail);
+await page.fill("#password", "Passw0rd!23");
+await page.check("#terms");
+await page.click('button[type="submit"]');
+const duplicateError = page.locator("#form-error");
+await duplicateError.waitFor({ state: "visible" });
+record(
+  "duplicate signup is rejected by PostgreSQL",
+  (await duplicateError.innerText()).trim() ===
+    "An account with this email already exists.",
+);
+
+await page.goto(`${BASE}/login`);
+await settle();
+await page.fill("#email", newEmail);
+await page.fill("#password", "Passw0rd!23");
+await page.click('button[type="submit"]');
+await page.waitForURL("**/dashboard");
+record("new account signs in again from the database", page.url().endsWith("/dashboard"));
+await page.click('form button[type="submit"]');
+await page.waitForURL("**/login");
+
+/* 4. Seeded login works; wrong password shows the error state. */
 await page.fill("#email", "andrewmartin@catcus.com");
 await page.fill("#password", "nope");
 await page.click('button[type="submit"]');
@@ -68,7 +97,7 @@ await page.click('button[type="submit"]');
 await page.waitForURL("**/dashboard");
 record("seeded account signs in", page.url().endsWith("/dashboard"));
 
-/* 4. Signed-in users are bounced away from the auth routes. */
+/* 5. Signed-in users are bounced away from the auth routes. */
 await page.goto(`${BASE}/login`);
 await page.waitForURL("**/dashboard");
 record("signed-in /login redirects to /dashboard", page.url().endsWith("/dashboard"));
@@ -76,7 +105,7 @@ await page.goto(`${BASE}/signup`);
 await page.waitForURL("**/dashboard");
 record("signed-in /signup redirects to /dashboard", page.url().endsWith("/dashboard"));
 
-/* 5. Cookie lifetime: 1 hour by default, 30 days with Remember Me. */
+/* 6. Cookie lifetime: 1 hour by default, 30 days with Remember Me. */
 const hourCookie = (await context.cookies()).find((c) => c.name === "catcus_session");
 const hourDays = (hourCookie.expires * 1000 - Date.now()) / 86_400_000;
 record("default session cookie lasts ~1 hour", hourDays > 0.035 && hourDays < 0.05, `${(hourDays * 24).toFixed(1)} hours`);
@@ -94,7 +123,7 @@ const monthCookie = (await context.cookies()).find((c) => c.name === "catcus_ses
 const monthDays = (monthCookie.expires * 1000 - Date.now()) / 86_400_000;
 record("Remember Me extends the cookie to ~30 days", monthDays > 29 && monthDays < 31, `${monthDays.toFixed(1)} days`);
 
-/* 6. A tampered cookie is treated as signed out. */
+/* 7. A tampered cookie is treated as signed out. */
 await context.addCookies([
   { name: "catcus_session", value: "tampered.token.value", domain: "localhost", path: "/" },
 ]);
@@ -102,7 +131,7 @@ await page.goto(`${BASE}/dashboard`);
 await page.waitForURL("**/login");
 record("tampered cookie is rejected", page.url().endsWith("/login"));
 
-/* 7. Keyboard: checkbox toggles with Space, Enter submits. */
+/* 8. Keyboard: checkbox toggles with Space, Enter submits. */
 await page.goto(`${BASE}/login`);
 await settle();
 await page.check("#remember");
@@ -114,7 +143,7 @@ await page.keyboard.press("Enter");
 await page.waitForURL("**/dashboard");
 record("Enter in a field submits the form", page.url().endsWith("/dashboard"));
 
-/* 8. Empty / invalid signup is rejected with a message, not a crash. */
+/* 9. Empty / invalid signup is rejected with a message, not a crash. */
 await signOut();
 await page.goto(`${BASE}/signup`);
 await settle();
