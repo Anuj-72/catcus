@@ -1,0 +1,107 @@
+/**
+ * Server-only client for the FastAPI auth API. The browser never calls the
+ * backend directly: Server Actions are the only callers, so no CORS setup or
+ * public backend URL is needed.
+ */
+
+const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
+const REQUEST_TIMEOUT_MS = 5_000;
+
+export type BackendUser = {
+  id: string;
+  email: string;
+  full_name: string;
+  created_at: string;
+};
+
+export type BackendErrorKind =
+  | "email_taken"
+  | "invalid_credentials"
+  | "unreachable"
+  | "invalid_response"
+  | "rejected";
+
+export class BackendError extends Error {
+  constructor(
+    readonly kind: BackendErrorKind,
+    readonly status: number | null = null,
+  ) {
+    super(kind);
+    this.name = "BackendError";
+  }
+}
+
+function backendUrl(path: string): string {
+  const base = (process.env.BACKEND_URL ?? DEFAULT_BACKEND_URL).replace(
+    /\/+$/,
+    "",
+  );
+  return `${base}${path}`;
+}
+
+async function postJson(path: string, body: unknown): Promise<unknown> {
+  let response: Response;
+  try {
+    response = await fetch(backendUrl(path), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify(body),
+      cache: "no-store",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch {
+    // Connection refused, DNS failure, timeout: treat as an unavailable API.
+    throw new BackendError("unreachable");
+  }
+
+  if (response.status === 409) throw new BackendError("email_taken", 409);
+  if (response.status === 401) {
+    throw new BackendError("invalid_credentials", 401);
+  }
+  if (!response.ok) throw new BackendError("rejected", response.status);
+
+  try {
+    return await response.json();
+  } catch {
+    throw new BackendError("invalid_response", response.status);
+  }
+}
+
+function parseUser(value: unknown): BackendUser {
+  if (value === null || typeof value !== "object") {
+    throw new BackendError("invalid_response");
+  }
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.id !== "string" ||
+    typeof record.email !== "string" ||
+    typeof record.full_name !== "string" ||
+    typeof record.created_at !== "string"
+  ) {
+    throw new BackendError("invalid_response");
+  }
+  return {
+    id: record.id,
+    email: record.email,
+    full_name: record.full_name,
+    created_at: record.created_at,
+  };
+}
+
+export async function registerUser(input: {
+  full_name: string;
+  email: string;
+  password: string;
+}): Promise<BackendUser> {
+  return parseUser(await postJson("/auth/register", input));
+}
+
+export async function authenticateUser(input: {
+  email: string;
+  password: string;
+}): Promise<BackendUser> {
+  return parseUser(await postJson("/auth/login", input));
+}
