@@ -1,7 +1,7 @@
 # CATCUS frontend
 
-Next.js (App Router, TypeScript strict) reproduction of four Figma frames with a
-**mock** auth flow. No backend, no database: accounts live in server memory.
+Next.js (App Router, TypeScript strict) reproduction of four Figma frames with
+backend-backed auth. Server Actions call FastAPI, which stores accounts in PostgreSQL.
 
 | View | Figma frame | Route |
 |---|---|---|
@@ -15,17 +15,17 @@ Next.js (App Router, TypeScript strict) reproduction of four Figma frames with a
 ```bash
 npm install
 cp .env.example .env.local      # then put a random 32+ char AUTH_SECRET in it
-npm run dev
+npm run up                      # PostgreSQL + FastAPI + Next.js
 ```
 
-`AUTH_MODE=mock` selects the mock store. `AUTH_SECRET` signs the session JWT
-(HS256) and is required: the app throws on boot if it is missing or shorter than
-32 characters. Generate one with `openssl rand -base64 32`.
+`BACKEND_URL` points at the FastAPI service (`http://127.0.0.1:8000` by default)
+and is read only on the server. `AUTH_SECRET` signs the session JWT (HS256) and
+is required: the app throws on boot if it is missing or shorter than 32
+characters. Generate one with `openssl rand -base64 32`.
 
 **Seeded account:** `andrewmartin@catcus.com` / `Password@12` (the same strings
-that appear as placeholder copy in the design). New accounts created via
-`/signup` are held in a `Map` on `globalThis` and disappear when the server
-restarts.
+that appear as placeholder copy in the design), inserted by `npm run up`. New
+accounts created via `/signup` are stored in PostgreSQL and survive restarts.
 
 ## Layout of the code
 
@@ -43,7 +43,7 @@ src/
     auth/                   LeftCard, DividerOr, SignupForm, LoginForm
     ui/                     TextField, Checkbox, PrimaryButton, SocialButton
     dashboard/              Sidebar, HeaderBar, WelcomeBanner, AccountCard, LogoutButton
-  lib/auth/                 jwt.ts, session.ts, mock-db.ts, actions.ts, validation.ts, user.ts
+  lib/auth/                 jwt.ts, session.ts, backend.ts, actions.ts, validation.ts, user.ts
   proxy.ts                  route protection (Next 16 proxy, verifies the JWT)
 scripts/                    visual / geometry / functional checks
 public/assets/              the eight SVGs, copied unchanged from design-assets/
@@ -104,24 +104,21 @@ views across six viewports.
 Border widths are the exception: the 1.167 Figma px input border uses
 `calc(0.5835 * var(--u))`, and 1px black outlines use the `--hairline` token.
 
-## Mock auth
+## Auth flow
 
 - `lib/auth/actions.ts` — `loginAction`, `signupAction`, `logoutAction` (`"use server"`), used through `useActionState`. Failure returns `{ error, ...values }` so the typed email survives; a wrong password and an unknown email return the same message.
-- `lib/auth/session.ts` — signs a JWT (`sub` = email, `name`, `iat`, `exp`) into the `catcus_session` cookie: `httpOnly`, `sameSite: lax`, `secure` in production, 1 hour by default and 30 days with "Remember Me".
-- `lib/auth/mock-db.ts` — seeded user + in-memory store on `globalThis`, constant-time password comparison (passwords are stored in plain text *because this is mock data only*).
+- `lib/auth/backend.ts` — server-only FastAPI client. It posts to `/auth/register` and `/auth/login` with a 5-second timeout and maps `409`/`401`/unreachable responses to form messages. The browser never sees the backend URL.
+- `lib/auth/session.ts` — after the backend accepts the credentials, signs a JWT (`sub` = email, `name`, `iat`, `exp`) into the `catcus_session` cookie: `httpOnly`, `sameSite: lax`, `secure` in production, 1 hour by default and 30 days with "Remember Me". Backend-issued tokens are Phase 3.
 - `src/proxy.ts` — redirects unauthenticated `/dashboard/*` to `/login` and signed-in users away from `/login` and `/signup`; the dashboard page verifies the session again on the server.
-
-Swapping in a real backend means replacing the internals of `lib/auth/*` and
-keeping the action signatures and session shape.
 
 ## Checks
 
-Start the dev server first (`npm run dev`, default port 3000). The scripts
+Start the full stack first (`npm run up`, default port 3000). The scripts
 default to `BASE_URL=http://localhost:3100`; override it if your port differs.
 
 ```bash
 BASE_URL=http://localhost:3000 npm run check:geometry     # 52 box/style assertions, +-0.5 px
-BASE_URL=http://localhost:3000 npm run check:functional   # 19 auth/route/cookie checks
+BASE_URL=http://localhost:3000 npm run check:functional   # 21 auth/route/cookie checks
 BASE_URL=http://localhost:3000 npm run check:visual       # 2880x1800 screenshots + pixelmatch
 BASE_URL=http://localhost:3000 npm run check:responsive   # no scrollbars at 6 viewport sizes
 ```

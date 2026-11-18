@@ -28,7 +28,7 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 | Typed input text uses `--ink` (#18271F) at the placeholder's size/weight | No filled/typed state exists in the design | `TextField.module.css` |
 | Signup validation messages reuse the login error style (`--error`, DM Sans 20px), placed under the T&C row | Error states only exist for Login in Figma | `SignupForm.tsx` / `.module.css` |
 | Terms & Conditions link is `href="#"` | No destination exists; navigation is out of scope | `SignupForm.tsx` |
-| Google / GitHub buttons are `type="button"` no-ops with a `// TODO: OAuth` | OAuth is out of scope for mock auth | `SocialButton.tsx` |
+| Google / GitHub buttons are `type="button"` no-ops with a `// TODO: OAuth` | OAuth is out of scope | `SocialButton.tsx` |
 | `/login?state=error` renders the error state without submitting (development only) | Needed to screenshot-compare with frame `33:70` | `src/app/(auth)/login/page.tsx` |
 | Error message sits on the Remember Me row, right edge flush with the form | Matches the brief; Figma's baseline is 907.307, the same row as Remember Me | `LoginForm.module.css` |
 | Password rules: min 8 characters, plus an email-format check and a duplicate-email rejection | No signup validation is designed | `lib/auth/validation.ts` |
@@ -46,7 +46,6 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 | **Logout icon size** | Rendered at 22.5 CSS px (45 Figma px, per `STYLE.md`). The task brief said 30 CSS px; `STYLE.md` won. |
 | **Ellipse positions** | Placed at Figma bbox − 31.3px blur bleed, which is exactly what the exported 882.6/612.6/362.6 SVGs encode. No further adjustment was needed. |
 | **`Cactus` vs `Catcus`** | Dashboard copy says "Cactus", the brand/email say "Catcus". Both kept exactly as designed. |
-| **`AUTH_MODE`** | Documented and defaults to `mock`, but the app always uses the in-memory store: there is no real backend in this task. |
 
 ## Config changes
 

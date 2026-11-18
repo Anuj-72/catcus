@@ -1,7 +1,8 @@
 # CATCUS backend
 
-Phase 1 provides PostgreSQL, a pooled SQLAlchemy engine and user persistence. FastAPI is the
-private backend; the Next.js UI still uses the mock auth store until Phase 2 wires the BFF to it.
+FastAPI is the private auth backend, backed by PostgreSQL through a pooled SQLAlchemy engine.
+Next.js Server Actions are the browser-facing BFF: signup and login call this API, then issue the
+HttpOnly `catcus_session` cookie.
 
 ## Run it
 
@@ -45,9 +46,10 @@ python -m scripts.seed
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-The API listens on loopback only. The browser never calls it: Phase 2 adds a server-only Next.js
-client and keeps the HttpOnly `catcus_session` cookie on the Next side. Until then the UI still uses
-`AUTH_MODE=mock`; leaving it in `.env.local` is correct.
+The API listens on loopback only. The browser never calls it: `src/lib/auth/backend.ts` is a
+server-only client used by the Server Actions. `BACKEND_URL` selects the API base URL
+(`http://127.0.0.1:8000` by default), and the HttpOnly `catcus_session` cookie stays on the Next
+side. Backend-issued JWTs and token revocation are Phase 3.
 
 ## API
 
@@ -55,9 +57,12 @@ client and keeps the HttpOnly `catcus_session` cookie on the Next side. Until th
 |---|---|---|
 | `GET` | `/health` | `200 {"status":"ok"}`, or `503` when PostgreSQL is unreachable |
 | `POST` | `/auth/register` | `201` user JSON; `409 {"detail":"email_taken"}` for a duplicate |
+| `POST` | `/auth/login` | `200` user JSON; `401 {"detail":"invalid_credentials"}` |
 
 Registration accepts `full_name`, `email` and `password` (8–128 characters), stores the email
-lower-case and hashes the password with Argon2id through `pwdlib`. No token is issued yet.
+lower-case and hashes the password with Argon2id through `pwdlib`. Login checks the Argon2id hash and
+rejects inactive accounts with the same `invalid_credentials` response. Neither endpoint issues a
+token yet; Next.js signs the session cookie after a successful call.
 
 ## Database
 
@@ -99,9 +104,10 @@ pytest -q
 ```
 
 Tests use `TEST_DATABASE_URL` (the `catcus_test` database), run Alembic once, and truncate
-`users` between tests. The pool test opens 40 concurrent sessions and asserts that every
-connection returns to the pool and that PostgreSQL never sees more than 30 `catcus-api`
-connections.
+`users` between tests. They cover registration, case-insensitive duplicates, Argon2id hashes,
+login success and failure, inactive users and `/health`. The pool test opens 40 concurrent sessions
+and asserts that every connection returns to the pool and that PostgreSQL never sees more than 30
+`catcus-api` connections.
 
 ## Demo account
 
