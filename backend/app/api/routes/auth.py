@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import CurrentUser, get_current_user
 from app.core.config import get_settings
 from app.core.tokens import create_access_token
 from app.db.session import get_db
@@ -67,3 +68,8 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
         ) from exc
     ttl = settings.remember_token_ttl if payload.remember else settings.access_token_ttl
     return _auth_response(user, ttl)
+
+
+@router.get("/me", response_model=UserResponse)
+def me(current: CurrentUser = Depends(get_current_user)) -> UserResponse:
+    return UserResponse.model_validate(current.user)
