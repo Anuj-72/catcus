@@ -6,6 +6,7 @@
 import { chromium } from "@playwright/test";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3100";
+const BACKEND = process.env.BACKEND_URL ?? "http://127.0.0.1:8000";
 const results = [];
 
 const record = (name, ok, detail = "") =>
@@ -40,10 +41,25 @@ record("dashboard shows the new user's name", dashText.includes("Rosa Vega"));
 record("dashboard shows the new user's email", dashText.includes(newEmail));
 record("avatar initials are derived (RV)", badges > 0);
 
-/* 2. Logout clears the session and /dashboard is protected again. */
+const signupCookie = (await context.cookies()).find((c) => c.name === "catcus_session");
+const signupToken = signupCookie?.value ?? "";
+record(
+  "session cookie contains a backend JWT",
+  signupToken.split(".").length === 3,
+);
+
+/* 2. Logout clears the session, revokes the token, and /dashboard is protected. */
 await page.click('form button[type="submit"]');
 await page.waitForURL("**/login");
 record("logout redirects to /login", page.url().endsWith("/login"));
+const revokedMe = await fetch(`${BACKEND}/auth/me`, {
+  headers: { authorization: `Bearer ${signupToken}` },
+});
+record(
+  "logout revokes the backend token",
+  revokedMe.status === 401,
+  `status ${revokedMe.status}`,
+);
 await page.goto(`${BASE}/dashboard`);
 await page.waitForURL("**/login");
 record("signed-out /dashboard redirects to /login", page.url().endsWith("/login"));
@@ -123,7 +139,22 @@ const monthCookie = (await context.cookies()).find((c) => c.name === "catcus_ses
 const monthDays = (monthCookie.expires * 1000 - Date.now()) / 86_400_000;
 record("Remember Me extends the cookie to ~30 days", monthDays > 29 && monthDays < 31, `${monthDays.toFixed(1)} days`);
 
-/* 7. A tampered cookie is treated as signed out. */
+/* 7. Revoking the token behind a still-present cookie closes the dashboard. */
+const monthToken = monthCookie.value;
+const directRevoke = await fetch(`${BACKEND}/auth/logout`, {
+  method: "POST",
+  headers: { authorization: `Bearer ${monthToken}` },
+});
+record(
+  "backend logout revokes the token directly",
+  directRevoke.status === 204,
+  `status ${directRevoke.status}`,
+);
+await page.goto(`${BASE}/dashboard`);
+await page.waitForURL("**/login");
+record("revoked token cannot keep the dashboard open", page.url().endsWith("/login"));
+
+/* 8. A tampered cookie is treated as signed out. */
 await context.addCookies([
   { name: "catcus_session", value: "tampered.token.value", domain: "localhost", path: "/" },
 ]);
@@ -131,7 +162,7 @@ await page.goto(`${BASE}/dashboard`);
 await page.waitForURL("**/login");
 record("tampered cookie is rejected", page.url().endsWith("/login"));
 
-/* 8. Keyboard: checkbox toggles with Space, Enter submits. */
+/* 9. Keyboard: checkbox toggles with Space, Enter submits. */
 await page.goto(`${BASE}/login`);
 await settle();
 await page.check("#remember");
@@ -143,7 +174,7 @@ await page.keyboard.press("Enter");
 await page.waitForURL("**/dashboard");
 record("Enter in a field submits the form", page.url().endsWith("/dashboard"));
 
-/* 9. Empty / invalid signup is rejected with a message, not a crash. */
+/* 10. Empty / invalid signup is rejected with a message, not a crash. */
 await signOut();
 await page.goto(`${BASE}/signup`);
 await settle();
