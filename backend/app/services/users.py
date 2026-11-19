@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -20,6 +22,10 @@ def normalize_email(email: str) -> str:
 
 def get_user_by_email(db: Session, email: str) -> User | None:
     return db.scalar(select(User).where(User.email == normalize_email(email)))
+
+
+def get_user_by_id(db: Session, user_id: UUID) -> User | None:
+    return db.get(User, user_id)
 
 
 def register_user(db: Session, *, email: str, full_name: str, password: str) -> User:
