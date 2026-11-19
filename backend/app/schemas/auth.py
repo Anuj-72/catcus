@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
@@ -21,6 +22,7 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr = Field(max_length=320)
     password: str = Field(min_length=1, max_length=128)
+    remember: bool = False
 
 
 class UserResponse(BaseModel):
@@ -30,3 +32,10 @@ class UserResponse(BaseModel):
     email: EmailStr
     full_name: str
     created_at: datetime
+
+
+class AuthResponse(BaseModel):
+    access_token: str
+    token_type: Literal["bearer"] = "bearer"
+    expires_in: int
+    user: UserResponse

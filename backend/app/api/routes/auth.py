@@ -1,8 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
+from app.core.tokens import create_access_token
 from app.db.session import get_db
-from app.schemas.auth import LoginRequest, RegisterRequest, UserResponse
+from app.models.user import User
+from app.schemas.auth import (
+    AuthResponse,
+    LoginRequest,
+    RegisterRequest,
+    UserResponse,
+)
 from app.services.users import (
     EmailTaken,
     InvalidCredentials,
@@ -11,14 +19,24 @@ from app.services.users import (
 )
 
 router = APIRouter()
+settings = get_settings()
+
+
+def _auth_response(user: User, ttl_seconds: int) -> AuthResponse:
+    token, expires_in = create_access_token(user, ttl_seconds)
+    return AuthResponse(
+        access_token=token,
+        expires_in=expires_in,
+        user=UserResponse.model_validate(user),
+    )
 
 
 @router.post(
     "/register",
-    response_model=UserResponse,
+    response_model=AuthResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> UserResponse:
+def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> AuthResponse:
     try:
         user = register_user(
             db,
@@ -31,11 +49,11 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> UserRes
             status_code=status.HTTP_409_CONFLICT,
             detail="email_taken",
         ) from exc
-    return UserResponse.model_validate(user)
+    return _auth_response(user, settings.access_token_ttl)
 
 
-@router.post("/login", response_model=UserResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)) -> UserResponse:
+@router.post("/login", response_model=AuthResponse)
+def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
     try:
         user = authenticate_user(
             db,
@@ -47,4 +65,5 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> UserResponse:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="invalid_credentials",
         ) from exc
-    return UserResponse.model_validate(user)
+    ttl = settings.remember_token_ttl if payload.remember else settings.access_token_ttl
+    return _auth_response(user, ttl)
