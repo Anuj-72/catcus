@@ -32,6 +32,8 @@ Every place where the build differs from, or adds to, Figma. Design values come 
 | `/login?state=error` renders the error state without submitting (development only) | Needed to screenshot-compare with frame `33:70` | `src/app/(auth)/login/page.tsx` |
 | Error message sits on the Remember Me row, right edge flush with the form | Matches the brief; Figma's baseline is 907.307, the same row as Remember Me | `LoginForm.module.css` |
 | Password rules: min 8 characters, plus an email-format check and a duplicate-email rejection | No signup validation is designed | `lib/auth/validation.ts` |
+| Dashboard keeps the locally verified session when `/auth/me` is unreachable | A backend outage should not sign every user out; revocation cannot be checked until the API returns. A 401 still clears the cookie and redirects to `/login` | `src/app/dashboard/page.tsx` |
+| Pre-Phase-3 session cookies are rejected | Tokens now require `iss`, `aud`, a UUID `sub` and `jti`; there is no cookie migration, so users sign in again | `src/lib/auth/jwt.ts` |
 
 ## Reproduction limits
 

@@ -14,14 +14,16 @@ backend-backed auth. Server Actions call FastAPI, which stores accounts in Postg
 
 ```bash
 npm install
-cp .env.example .env.local      # then put a random 32+ char AUTH_SECRET in it
+cp .env.example .env.local      # then put the same 32+ char JWT_SECRET as backend/.env
 npm run up                      # PostgreSQL + FastAPI + Next.js
 ```
 
 `BACKEND_URL` points at the FastAPI service (`http://127.0.0.1:8000` by default)
-and is read only on the server. `AUTH_SECRET` signs the session JWT (HS256) and
-is required: the app throws on boot if it is missing or shorter than 32
-characters. Generate one with `openssl rand -base64 32`.
+and is read only on the server. FastAPI issues the session JWT (HS256) and Next.js
+verifies it with `JWT_SECRET`, `JWT_ISSUER` and `JWT_AUDIENCE`. The secret is
+required: the app throws if it is missing or shorter than 32 characters, and it
+must be identical in root `.env.local` and `backend/.env`. Generate one with
+`openssl rand -base64 32`.
 
 **Seeded account:** `andrewmartin@catcus.com` / `Password@12` (the same strings
 that appear as placeholder copy in the design), inserted by `npm run up`. New
@@ -107,9 +109,11 @@ Border widths are the exception: the 1.167 Figma px input border uses
 ## Auth flow
 
 - `lib/auth/actions.ts` — `loginAction`, `signupAction`, `logoutAction` (`"use server"`), used through `useActionState`. Failure returns `{ error, ...values }` so the typed email survives; a wrong password and an unknown email return the same message.
-- `lib/auth/backend.ts` — server-only FastAPI client. It posts to `/auth/register` and `/auth/login` with a 5-second timeout and maps `409`/`401`/unreachable responses to form messages. The browser never sees the backend URL.
-- `lib/auth/session.ts` — after the backend accepts the credentials, signs a JWT (`sub` = email, `name`, `iat`, `exp`) into the `catcus_session` cookie: `httpOnly`, `sameSite: lax`, `secure` in production, 1 hour by default and 30 days with "Remember Me". Backend-issued tokens are Phase 3.
-- `src/proxy.ts` — redirects unauthenticated `/dashboard/*` to `/login` and signed-in users away from `/login` and `/signup`; the dashboard page verifies the session again on the server.
+- `lib/auth/backend.ts` — server-only FastAPI client. It calls `/auth/register`, `/auth/login`, `/auth/me` and `/auth/logout` with a 5-second timeout and maps `409`/`401`/unreachable responses to form messages. The browser never sees the backend URL.
+- `lib/auth/jwt.ts` — verifies the backend token with `jose`: HS256 signature, issuer, audience and expiry. There is no frontend signing.
+- `lib/auth/session.ts` — stores the backend token unchanged in `catcus_session`: `httpOnly`, `sameSite: lax`, `secure` in production, `maxAge` from the backend `expires_in` (1 hour by default, 30 days with "Remember Me").
+- `src/proxy.ts` — redirects unauthenticated `/dashboard/*` to `/login` and signed-in users away from `/login` and `/signup`; the dashboard calls `/auth/me` server-side on every render.
+- The dashboard redirects to `/api/auth/clear-session`, which deletes the cookie and returns to `/login`, when the backend rejects the token. If the backend is unreachable, the dashboard keeps the locally verified session instead of signing everyone out; revocation cannot be checked until the API is back.
 
 ## Checks
 
@@ -118,7 +122,7 @@ default to `BASE_URL=http://localhost:3100`; override it if your port differs.
 
 ```bash
 BASE_URL=http://localhost:3000 npm run check:geometry     # 52 box/style assertions, +-0.5 px
-BASE_URL=http://localhost:3000 npm run check:functional   # 21 auth/route/cookie checks
+BASE_URL=http://localhost:3000 npm run check:functional   # 25 auth/route/cookie/token checks
 BASE_URL=http://localhost:3000 npm run check:visual       # 2880x1800 screenshots + pixelmatch
 BASE_URL=http://localhost:3000 npm run check:responsive   # no scrollbars at 6 viewport sizes
 ```

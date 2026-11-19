@@ -1,8 +1,8 @@
 # CATCUS backend
 
 FastAPI is the private auth backend, backed by PostgreSQL through a pooled SQLAlchemy engine.
-Next.js Server Actions are the browser-facing BFF: signup and login call this API, then issue the
-HttpOnly `catcus_session` cookie.
+Next.js Server Actions are the browser-facing BFF: signup and login call this API, then store the
+backend-issued JWT in the HttpOnly `catcus_session` cookie.
 
 ## Run it
 
@@ -48,21 +48,56 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
 The API listens on loopback only. The browser never calls it: `src/lib/auth/backend.ts` is a
 server-only client used by the Server Actions. `BACKEND_URL` selects the API base URL
-(`http://127.0.0.1:8000` by default), and the HttpOnly `catcus_session` cookie stays on the Next
-side. Backend-issued JWTs and token revocation are Phase 3.
+(`http://127.0.0.1:8000` by default). FastAPI issues the JWT stored in the HttpOnly
+`catcus_session` cookie, validates the same token on protected endpoints, and records revoked
+`jti` values in PostgreSQL.
 
 ## API
 
 | Method | Path | Result |
 |---|---|---|
 | `GET` | `/health` | `200 {"status":"ok"}`, or `503` when PostgreSQL is unreachable |
-| `POST` | `/auth/register` | `201` user JSON; `409 {"detail":"email_taken"}` for a duplicate |
-| `POST` | `/auth/login` | `200` user JSON; `401 {"detail":"invalid_credentials"}` |
+| `POST` | `/auth/register` | `201` auth response; `409 {"detail":"email_taken"}` for a duplicate |
+| `POST` | `/auth/login` | `200` auth response; `401 {"detail":"invalid_credentials"}` |
+| `GET` | `/auth/me` | `200` current user with a bearer token; `401 {"detail":"invalid_token"}` |
+| `POST` | `/auth/logout` | `204` and the bearer token's `jti` is revoked; `401` otherwise |
 
 Registration accepts `full_name`, `email` and `password` (8–128 characters), stores the email
 lower-case and hashes the password with Argon2id through `pwdlib`. Login checks the Argon2id hash and
-rejects inactive accounts with the same `invalid_credentials` response. Neither endpoint issues a
-token yet; Next.js signs the session cookie after a successful call.
+rejects inactive accounts with the same `invalid_credentials` response. Both endpoints issue a
+token and return:
+
+```json
+{
+  "access_token": "<jwt>",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "user": {
+    "id": "<uuid>",
+    "email": "user@example.com",
+    "full_name": "User Name",
+    "created_at": "<timestamp>"
+  }
+}
+```
+
+Registration always uses the 1-hour lifetime. Login accepts `remember: true` for the 30-day
+lifetime. Tokens are `HS256`, issuer `catcus-api`, audience `catcus-web`, with `sub` (user UUID),
+`email`, `name`, `jti`, `iat` and `exp` claims. Protected routes decode the token, reject a
+revoked `jti`, and reject missing, inactive or deleted users as `invalid_token`. `/auth/logout`
+inserts the `jti` into `revoked_tokens`; a revoked token then fails both `/auth/me` and a second
+logout.
+
+JWT settings, all overridable from `backend/.env`:
+
+| Setting | Default | Notes |
+|---|---|---|
+| `JWT_SECRET` | none | Required, 32+ characters; must match root `.env.local` |
+| `JWT_ALGORITHM` | `HS256` | Fixed |
+| `JWT_ISSUER` | `catcus-api` | Validated on decode |
+| `JWT_AUDIENCE` | `catcus-web` | Validated on decode |
+| `ACCESS_TOKEN_TTL` | `3600` | Seconds |
+| `REMEMBER_TOKEN_TTL` | `2592000` | Seconds (30 days) |
 
 ## Database
 
@@ -73,6 +108,9 @@ token yet; Next.js signs the session cookie after a successful call.
   `docker compose down -v && docker compose up -d --wait`, then run Alembic and the seed again.
 - Alembic owns the schema. The application never calls `create_all()`.
 - `users` columns use `text`; length limits live in Pydantic, not `varchar(n)`.
+- `revoked_tokens` (migration `0002_revoked_tokens`) stores `jti` (UUID primary key), `user_id`
+  (FK to `users`, `ON DELETE CASCADE`), `expires_at` and `revoked_at`, with an index on
+  `expires_at` for later pruning. Active sessions stay stateless.
 
 ## Connection pool
 
@@ -104,10 +142,12 @@ pytest -q
 ```
 
 Tests use `TEST_DATABASE_URL` (the `catcus_test` database), run Alembic once, and truncate
-`users` between tests. They cover registration, case-insensitive duplicates, Argon2id hashes,
-login success and failure, inactive users and `/health`. The pool test opens 40 concurrent sessions
-and asserts that every connection returns to the pool and that PostgreSQL never sees more than 30
-`catcus-api` connections.
+`revoked_tokens` and `users` between tests. They cover registration, case-insensitive duplicates,
+Argon2id hashes, login success and failure, inactive users, `/health`, token claims and lifetimes,
+`/auth/me`, every invalid-token case (missing, malformed, tampered, expired, wrong issuer,
+wrong audience, missing claim, inactive or deleted user) and logout revocation. The pool test opens
+40 concurrent sessions and asserts that every connection returns to the pool and that PostgreSQL
+never sees more than 30 `catcus-api` connections.
 
 ## Demo account
 
