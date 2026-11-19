@@ -5,7 +5,7 @@ Login / create-account / dashboard flow built from the Figma design captured in
 
 ```bash
 npm install
-cp .env.example .env.local     # set a 32+ character AUTH_SECRET
+cp .env.example .env.local     # set JWT_SECRET, same value as backend/.env
 npm run up                     # PostgreSQL + FastAPI + Next.js
 ```
 
@@ -29,7 +29,9 @@ npm run check:visual       # 2880x1800 screenshots + pixelmatch diff
 ```
 
 Signup and login run through Next.js Server Actions to FastAPI; accounts live in
-PostgreSQL. The browser never calls the API directly. The Google / GitHub buttons
+PostgreSQL. FastAPI issues the JWT stored in the HttpOnly session cookie, the
+dashboard verifies it against `/auth/me`, and logout revokes it. The browser
+never calls the API directly. The Google / GitHub buttons
 are no-ops. Do not optimise the SVGs in `design-assets/` or `public/assets/` —
 their grain and blur filters break. `public/assets/grain.svg` is generated, not
 exported: its alpha curve is tuned to Figma's NOISE effect, so changing the
