@@ -36,11 +36,15 @@ def test_register_persists_lowercased_user_with_argon2_hash(client: TestClient) 
 
     assert response.status_code == 201
     body = response.json()
-    assert body["email"] == "test@example.com"
-    assert body["full_name"] == "Test User"
-    assert "password_hash" not in body
-    assert body["id"]
-    assert body["created_at"]
+    assert body["access_token"]
+    assert body["token_type"] == "bearer"
+    assert body["expires_in"] == 3600
+    user = body["user"]
+    assert user["email"] == "test@example.com"
+    assert user["full_name"] == "Test User"
+    assert "password_hash" not in user
+    assert user["id"]
+    assert user["created_at"]
 
     with SessionLocal() as db:
         user = db.scalar(select(User).where(User.email == "test@example.com"))
@@ -84,9 +88,13 @@ def test_login_returns_the_registered_user(client: TestClient) -> None:
 
     assert response.status_code == 200
     body = response.json()
-    assert body["email"] == "test@example.com"
-    assert body["full_name"] == "Test User"
-    assert "password_hash" not in body
+    assert body["access_token"]
+    assert body["token_type"] == "bearer"
+    assert body["expires_in"] == 3600
+    user = body["user"]
+    assert user["email"] == "test@example.com"
+    assert user["full_name"] == "Test User"
+    assert "password_hash" not in user
 
 
 def test_login_rejects_wrong_password_and_unknown_email(client: TestClient) -> None:
