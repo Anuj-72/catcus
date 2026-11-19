@@ -11,6 +11,9 @@ from app.core.config import Settings, get_settings
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 
+# Keep pytest independent of the local backend/.env JWT secret.
+os.environ.setdefault("JWT_SECRET", "test-only-jwt-secret-at-least-32-characters")
+
 
 def _test_settings() -> Settings:
     settings = Settings()
@@ -40,9 +43,9 @@ def migrated_database() -> None:
 
 
 @pytest.fixture(autouse=True)
-def clean_users() -> None:
+def clean_users(migrated_database: None) -> None:
     with SessionLocal() as db:
-        db.execute(text("TRUNCATE TABLE users"))
+        db.execute(text("TRUNCATE TABLE revoked_tokens, users"))
         db.commit()
     yield
 
