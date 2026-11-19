@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -20,6 +21,14 @@ class Settings(BaseSettings):
     db_pool_recycle: int = Field(default=1800, ge=0)
     db_pool_use_lifo: bool = True
     db_connect_timeout: int = Field(default=5, ge=1)
+
+    # HS256 signing. JWT_SECRET must match the root .env.local.
+    jwt_secret: str = Field(min_length=32)
+    jwt_algorithm: Literal["HS256"] = "HS256"
+    jwt_issuer: str = "catcus-api"
+    jwt_audience: str = "catcus-web"
+    access_token_ttl: int = Field(default=3600, gt=0)
+    remember_token_ttl: int = Field(default=2592000, gt=0)
 
 
 @lru_cache
