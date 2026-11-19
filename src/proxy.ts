@@ -2,8 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/jwt";
 
 /**
- * Route protection (Next 16 `proxy.ts`). The session JWT is verified here as
- * well as in the pages, so a tampered cookie never reaches a protected render.
+ * Route protection (Next 16 `proxy.ts`). The backend-issued session JWT is
+ * verified here as well as in the pages, so a tampered cookie never reaches a
+ * protected render. Revocation is enforced by the dashboard's `/auth/me` call.
  */
 export async function proxy(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;

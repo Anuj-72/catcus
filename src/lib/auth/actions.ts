@@ -4,14 +4,15 @@ import { redirect } from "next/navigation";
 import {
   BackendError,
   authenticateUser,
+  logout as revokeToken,
   registerUser,
 } from "./backend";
-import { createSession, destroySession } from "./session";
+import { createSession, destroySession, readSessionToken } from "./session";
 import { validateSignup } from "./validation";
 
 /**
  * Server Actions are the browser-facing auth API (BFF). They call the private
- * FastAPI service, then issue the HttpOnly Next.js session cookie.
+ * FastAPI service, then store the backend-issued token in the HttpOnly cookie.
  */
 
 export type AuthState = {
@@ -60,8 +61,12 @@ export async function loginAction(
   }
 
   try {
-    const user = await authenticateUser({ email, password });
-    await createSession({ email: user.email, name: user.full_name }, remember);
+    const { token, expiresIn } = await authenticateUser({
+      email,
+      password,
+      remember,
+    });
+    await createSession(token, expiresIn);
   } catch (error) {
     return { error: loginError(error), email };
   }
@@ -92,12 +97,12 @@ export async function signupAction(
   if (validationError) return { error: validationError, ...values };
 
   try {
-    const user = await registerUser({
+    const { token, expiresIn } = await registerUser({
       full_name: `${firstName} ${lastName}`,
       email,
       password,
     });
-    await createSession({ email: user.email, name: user.full_name });
+    await createSession(token, expiresIn);
   } catch (error) {
     return { error: signupError(error), ...values };
   }
@@ -107,6 +112,17 @@ export async function signupAction(
 }
 
 export async function logoutAction(): Promise<void> {
+  const token = await readSessionToken();
+  if (token) {
+    try {
+      await revokeToken(token);
+    } catch (error) {
+      // Never block sign-out on revocation; the cookie is cleared regardless.
+      console.error("auth: token revocation failed", error);
+    }
+  }
+
   await destroySession();
+  // Must stay outside the try block: redirect() works by throwing.
   redirect("/login");
 }

@@ -1,42 +1,41 @@
 import { cookies } from "next/headers";
 import {
-  ONE_HOUR,
   SESSION_COOKIE,
-  THIRTY_DAYS,
-  signSession,
   verifySessionToken,
   type SessionUser,
 } from "./jwt";
 
 export { SESSION_COOKIE, verifySessionToken, type SessionUser };
 
-export function sessionMaxAge(remember: boolean): number {
-  return remember ? THIRTY_DAYS : ONE_HOUR;
-}
-
-/** Sign a session and write it to an httpOnly cookie. Server Actions only. */
+/**
+ * Store the backend token unchanged. Server Actions only.
+ * `maxAgeSeconds` comes from the backend's `expires_in`.
+ */
 export async function createSession(
-  user: SessionUser,
-  remember = false,
+  token: string,
+  maxAgeSeconds: number,
 ): Promise<void> {
-  const maxAge = sessionMaxAge(remember);
-  const token = await signSession(user, maxAge);
-
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge,
+    maxAge: maxAgeSeconds,
   });
 }
 
+/** Raw cookie value. Unverified: only pass it to the backend or after the proxy. */
+export async function readSessionToken(): Promise<string | null> {
+  return (await cookies()).get(SESSION_COOKIE)?.value ?? null;
+}
+
 export async function readSession(): Promise<SessionUser | null> {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const token = await readSessionToken();
   if (!token) return null;
   return verifySessionToken(token);
 }
 
+/** Server Actions and Route Handlers only; Server Components cannot mutate cookies. */
 export async function destroySession(): Promise<void> {
   (await cookies()).delete(SESSION_COOKIE);
 }
