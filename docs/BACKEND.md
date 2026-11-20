@@ -119,17 +119,30 @@ settings, all overridable from `backend/.env`:
 
 | Setting | Default | Purpose |
 |---|---|---|
-| `DB_POOL_SIZE` | 10 | Warm connections kept open |
-| `DB_MAX_OVERFLOW` | 20 | Burst connections above the base size |
-| `DB_POOL_TIMEOUT` | 30 s | Maximum wait when the pool is exhausted |
-| `DB_POOL_RECYCLE` | 1800 s | Recycle a connection before idle cutoffs |
+| `DB_POOL_SIZE` | 2 | Warm connections kept open |
+| `DB_MAX_OVERFLOW` | 3 | Burst connections above the base size |
+| `DB_POOL_TIMEOUT` | 10 s | Maximum wait when the pool is exhausted |
+| `DB_POOL_RECYCLE` | 300 s | Recycle a connection before idle cutoffs |
 | `DB_POOL_USE_LIFO` | true | Reuse the hottest connection first |
 | `DB_CONNECT_TIMEOUT` | 5 s | Fail fast when PostgreSQL is down |
 
+The ceiling is `pool_size + max_overflow` (5) **per instance**, and it is deliberately small
+because a serverless deployment runs one instance per unit of concurrent traffic. The ceiling
+multiplies by instance count, so five connections per instance keeps a hundred-instance burst
+inside a pooled endpoint's budget; Neon's pooler accepts up to 10,000 client connections. Local
+development with a single uvicorn process stays far below that.
+
 `pool_pre_ping=True` checks a connection before use, so a PostgreSQL restart does not poison the
-pool. The per-process ceiling is `pool_size + max_overflow` (30). With one uvicorn worker that
-leaves headroom under PostgreSQL's default `max_connections=100`. If workers are added, the total
-is `workers × 30` and must be budgeted.
+pool. `DB_POOL_RECYCLE=300` retires a connection well inside a pooler's idle timeout, so the pool
+does not hand out a connection the pooler has already closed. `DB_POOL_TIMEOUT=10` fails a request
+in ten seconds instead of holding a function invocation open until `maxDuration` kills it.
+
+Prepared statements are disabled with `prepare_threshold=None`. A transaction-mode pooler such as
+PgBouncer, which fronts Neon's pooled endpoint, can hand a server connection to another client
+between statements, so a statement prepared on one connection may not exist on the next. psycopg
+prepares automatically after five executions of the same query, which would appear as intermittent
+`prepared statement ... does not exist` failures under load. In deployment, `DATABASE_URL` points at
+the pooled endpoint and Alembic uses the direct URL.
 
 One session is created per request by `get_db()`, rolled back on an exception and closed in
 `finally`; closing returns its connection to the pool. There is no global `Session`.
@@ -147,7 +160,7 @@ Argon2id hashes, login success and failure, inactive users, `/health`, token cla
 `/auth/me`, every invalid-token case (missing, malformed, tampered, expired, wrong issuer,
 wrong audience, missing claim, inactive or deleted user) and logout revocation. The pool test opens
 40 concurrent sessions and asserts that every connection returns to the pool and that PostgreSQL
-never sees more than 30 `catcus-api` connections.
+never sees more than the configured ceiling (5) of `catcus-api` connections.
 
 ## Demo account
 
