@@ -18,6 +18,11 @@ engine = create_engine(
     connect_args={
         "connect_timeout": settings.db_connect_timeout,
         "application_name": "catcus-api",
+        # A transaction-mode pooler (PgBouncer, including Neon's pooled endpoint)
+        # can hand a server connection to another client between statements, so a
+        # statement prepared on one connection may not exist on the next. psycopg
+        # prepares automatically after a few executions; opt out entirely.
+        "prepare_threshold": None,
     },
 )
 
