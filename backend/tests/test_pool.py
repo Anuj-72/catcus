@@ -2,7 +2,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 from sqlalchemy import text
 
+from app.core.config import get_settings
 from app.db.session import SessionLocal, engine
+
+# Well above the configured ceiling, so the burst has to queue for a connection.
+CONCURRENT_REQUESTS = 40
 
 
 def _hold_connection() -> int:
@@ -12,10 +16,12 @@ def _hold_connection() -> int:
 
 
 def test_pool_serves_more_requests_than_its_base_size() -> None:
-    with ThreadPoolExecutor(max_workers=40) as pool:
-        results = list(pool.map(lambda _: _hold_connection(), range(40)))
+    settings = get_settings()
 
-    assert results == [1] * 40
+    with ThreadPoolExecutor(max_workers=CONCURRENT_REQUESTS) as pool:
+        results = list(pool.map(lambda _: _hold_connection(), range(CONCURRENT_REQUESTS)))
+
+    assert results == [1] * CONCURRENT_REQUESTS
     # Every connection went back to the pool after the burst.
     assert engine.pool.checkedout() == 0
 
@@ -31,4 +37,5 @@ def test_pool_serves_more_requests_than_its_base_size() -> None:
             )
         ).scalar_one()
 
-    assert connections <= 30
+    ceiling = settings.db_pool_size + settings.db_max_overflow
+    assert connections <= ceiling
