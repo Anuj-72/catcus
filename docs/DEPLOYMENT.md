@@ -42,6 +42,64 @@ at the root, FastAPI is in `backend/`.
 - Vercel CLI: `npm i -g vercel`
 - `openssl` for generating the JWT secret.
 
+## Quick start: deploying the prototype
+
+The condensed runbook. Sections 1–7 explain each step; this is the order to run
+them in. Every command runs from the repository root. Nothing here touches local
+development, and nothing here is required for `npm run up`.
+
+```bash
+cd /mnt/LocalDisk/Project_1
+
+# 1. Authenticate and create the project
+vercel login
+vercel project create catcus
+vercel link --yes --scope next-next2 --project catcus
+
+# 2. Framework preset must be "services", not "nextjs"
+vercel project update --framework services
+
+# 3. Connect the GitHub repo so pushes to main deploy production
+vercel git connect
+
+# 4. Provision PostgreSQL (Neon, from the Marketplace)
+vercel integration add neon --name catcus-db --meta auth=false -e production
+
+# 5. Shared auth settings, read by both services
+openssl rand -base64 32
+vercel env add JWT_SECRET -e production      # paste the generated value
+vercel env add JWT_ISSUER -e production      # catcus-api
+vercel env add JWT_AUDIENCE -e production    # catcus-web
+vercel env add SEED_DEMO -e production       # true for the demo account
+
+# 6. Confirm the variables landed (counts only, values are never printed)
+vercel env ls
+
+# 7. Deploy
+vercel deploy --prod
+```
+
+`BACKEND_URL` is not set by hand; the service binding in `vercel.json` injects
+it into the `web` service at runtime.
+
+Success looks like this:
+
+- The build log for `api` contains `Database setup complete.`
+- `vercel ls` shows the deployment as **Ready** and targeting Production.
+- `https://catcus.vercel.app/signup` renders the signup frame.
+- Signing up lands on the dashboard with the name you typed.
+- `andrewmartin@catcus.com` / `Password@12` works, because `SEED_DEMO=true`.
+- Signing out and reopening `/dashboard` redirects to `/login`.
+
+If any of that fails, see §9 Troubleshooting. Two things that are normal rather
+than broken: the first request after a quiet period is slow (the function and
+the Neon compute both cold-start), and a `preview` deployment builds and migrates
+against the same database as production.
+
+Afterwards, remove the demo account by setting `SEED_DEMO` to anything other than
+a truthy value and redeploying. It does not delete the existing row, only stops
+re-seeding it.
+
 ## 1. Create the project
 
 Root Directory must be the repository root, not `backend/`, because
@@ -50,7 +108,8 @@ Root Directory must be the repository root, not `backend/`, because
 ```bash
 cd /mnt/LocalDisk/Project_1
 vercel login
-vercel link                     # create a new project, e.g. "catcus"
+vercel project create catcus                          # or link an existing one
+vercel link --yes --scope next-next2 --project catcus
 vercel project update --framework services
 ```
 
@@ -67,7 +126,7 @@ Vercel no longer sells its own Postgres; Neon comes from the Marketplace and
 sets the connection variables for you.
 
 ```bash
-vercel integration add neon --name catcus-db --metadata auth=false --environment production
+vercel integration add neon --name catcus-db --meta auth=false -e production
 ```
 
 That provisions one database and adds `DATABASE_URL` (pooled) and
@@ -95,11 +154,15 @@ need the same secret.
 
 ```bash
 openssl rand -base64 32          # copy the output
-vercel env add JWT_SECRET production      # paste it; must be 32+ characters
-vercel env add JWT_ISSUER production      # catcus-api
-vercel env add JWT_AUDIENCE production    # catcus-web
-vercel env add SEED_DEMO production       # true, to create the demo account
+vercel env add JWT_SECRET -e production      # paste it; must be 32+ characters
+vercel env add JWT_ISSUER -e production      # catcus-api
+vercel env add JWT_AUDIENCE -e production    # catcus-web
+vercel env add SEED_DEMO -e production       # true, to create the demo account
 ```
+
+`vercel env add` prompts for the value on stdin. To set one non-interactively,
+pass `--value` instead, for example `vercel env add JWT_ISSUER -e production
+--value catcus-api`.
 
 | Variable | Service | Value |
 |---|---|---|
