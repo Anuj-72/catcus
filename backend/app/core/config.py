@@ -14,11 +14,12 @@ class Settings(BaseSettings):
     database_url: str
     test_database_url: str | None = None
 
-    # Pool ceiling per process is pool_size + max_overflow.
-    db_pool_size: int = Field(default=10, ge=1)
-    db_max_overflow: int = Field(default=20, ge=0)
-    db_pool_timeout: float = Field(default=30.0, gt=0)
-    db_pool_recycle: int = Field(default=1800, ge=0)
+    # Pool ceiling per instance is pool_size + max_overflow. Small on purpose:
+    # a serverless deployment runs many instances, and each one owns a pool.
+    db_pool_size: int = Field(default=2, ge=1)
+    db_max_overflow: int = Field(default=3, ge=0)
+    db_pool_timeout: float = Field(default=10.0, gt=0)
+    db_pool_recycle: int = Field(default=300, ge=0)
     db_pool_use_lifo: bool = True
     db_connect_timeout: int = Field(default=5, ge=1)
 
