@@ -5,7 +5,8 @@
  */
 
 const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
-const REQUEST_TIMEOUT_MS = 5_000;
+/** Generous on purpose: the deployed API and database can both cold-start. */
+const REQUEST_TIMEOUT_MS = 15_000;
 
 export type BackendUser = {
   id: string;
