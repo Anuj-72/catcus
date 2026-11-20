@@ -1,9 +1,10 @@
 # Prototype limitations
 
-CATCUS is a functional prototype of the four Figma auth screens, not a
-production deployment. The signup, login, session, dashboard and logout flows
-work end to end against PostgreSQL, but the gaps below are deliberate Phase 4
-and Future work.
+CATCUS is a functional prototype of the four Figma auth screens. The signup,
+login, session, dashboard and logout flows work end to end against PostgreSQL,
+and it is deployable to Vercel as described in [`DEPLOYMENT.md`](DEPLOYMENT.md),
+but it is not hardened for production. The gaps below are deliberate Phase 4 and
+Future work.
 
 ## Authentication and security
 
@@ -35,17 +36,27 @@ and Future work.
 
 ## Operations and deployment
 
-- Local development only: HTTP, loopback services, no domain, reverse proxy or
-  TLS.
-- No production deployment configuration, secret manager or release process.
-- Alembic exists, but there is no defined deploy-time migration step or rollback.
-- No database backups, retention policy or restore rehearsal.
-- One uvicorn worker. The pool ceiling is 5 connections per instance, sized for a
-  serverless deployment rather than measured; PgBouncer is not configured locally,
-  and the pooled endpoint is only exercised in deployment.
+- The Vercel configuration in `vercel.json` has not been deployed, so the
+  deployment path is unverified. Everything below describes it as designed.
+- Secrets live in Vercel environment variables. There is no dedicated secret
+  manager, no rotation procedure and no expiry.
+- `JWT_SECRET` rotation signs every user out, because the two services share one
+  HS256 secret with no key ID or overlap window.
+- The build hook migrates the database before each deployment serves traffic, but
+  a rollback reverts code only. An older deployment can run against a newer
+  schema, so migrations must stay additive.
+- No backups, retention policy or restore rehearsal. Neon's free plan offers a
+  single manual snapshot.
+- The pool ceiling is 5 connections per instance, chosen for the deployment
+  rather than measured under load. The pooled endpoint is not exercised locally;
+  local development talks to PostgreSQL directly.
 - No structured logging, metrics, tracing or alerting. Secrets and tokens are
-  not logged, but auth events are not captured either.
-- `/health` checks PostgreSQL, so liveness and readiness are not separated.
+  not logged, but auth events are not captured either. Vercel Hobby retains one
+  hour of runtime logs.
+- `/health` checks PostgreSQL, so liveness and readiness are not separated. It is
+  also not reachable from outside, because FastAPI has no public route.
+- Local development stays HTTP on loopback. TLS terminates at Vercel, and the
+  session cookie is `Secure` only when `NODE_ENV=production`.
 - PostgreSQL is pinned to 15.12 because pulling 17 failed in this environment.
 - Python 3.14 needs plain `uvicorn`; `uvicorn[standard]` pulls `uvloop`, which
   has no matching wheel here.
