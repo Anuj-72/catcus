@@ -25,6 +25,11 @@ dev = ["pytest>=8.3", "httpx>=0.28"]
 [tool.setuptools.packages.find]
 include = ["app*", "scripts*"]
 
+# Vercel runs this after installing dependencies and before the deployment
+# serves traffic, so the schema is migrated by the build that needs it.
+[tool.vercel.scripts]
+build = "python -m scripts.deploy_setup"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
