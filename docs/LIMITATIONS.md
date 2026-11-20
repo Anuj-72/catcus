@@ -40,8 +40,9 @@ and Future work.
 - No production deployment configuration, secret manager or release process.
 - Alembic exists, but there is no defined deploy-time migration step or rollback.
 - No database backups, retention policy or restore rehearsal.
-- One uvicorn worker. The pool ceiling is 30 connections per process and has not
-  been load-tested; PgBouncer is not configured.
+- One uvicorn worker. The pool ceiling is 5 connections per instance, sized for a
+  serverless deployment rather than measured; PgBouncer is not configured locally,
+  and the pooled endpoint is only exercised in deployment.
 - No structured logging, metrics, tracing or alerting. Secrets and tokens are
   not logged, but auth events are not captured either.
 - `/health` checks PostgreSQL, so liveness and readiness are not separated.
